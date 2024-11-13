@@ -84,12 +84,15 @@ def main():
         print("Skipping U-Boot build.")
 
     if not skip_rootfs:
+        # dd here
         disk_image_path = create_disk_image(TMP_DIR, config, vendor, device)
         if disk_image_path:
             loop_device = setup_loop_device(disk_image_path)
             print(f"Loop device setup at {loop_device}")
+        # fdisk, mkfs here
         create_partitions(loop_device, config)
         mount_partitions(config, loop_device, TMP_DIR, vendor, device)
+        # dnf install rootfs here
         setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro, arch)
 
     else:
