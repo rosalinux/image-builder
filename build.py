@@ -7,7 +7,7 @@ import multiprocessing
 from utils.bootstrap_setup import setup_bootstrap
 from utils.common import load_config
 from utils.make_disk import create_disk_image, setup_loop_device
-from utils.make_disk import create_partitions
+from utils.make_disk import create_partitions, mount_partitions
 
 BASE_DIR = os.getcwd()
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -95,6 +95,7 @@ def main():
         loop_device = setup_loop_device(disk_image_path)
         print(f"Loop device setup at {loop_device}")
     create_partitions(loop_device, config)
+    mount_partitions(config, loop_device, TMP_DIR, vendor, device)
 
     print(f"Build completed for {vendor}/{device} with distro {distro}")
 

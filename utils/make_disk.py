@@ -31,10 +31,19 @@ def create_disk_image(tmp_dir, config, vendor, device):
     return disk_image_path
 
 
+def cleanup_loop_devices():
+    result = subprocess.run(["losetup", "-l", "-O", "NAME"], capture_output=True, text=True)
+    active_loops = result.stdout.splitlines()[1:]
+
+    for loop_device in active_loops:
+        loop_device = loop_device.strip()
+        if loop_device:
+            print(f"Detaching {loop_device}")
+            subprocess.run(["sudo", "losetup", "-d", loop_device], check=False)
+
+
 def setup_loop_device(disk_image_path):
-    print("Cleanup /dev/loopX leftovers")
-    leftovers = ["sudo", "losetup", "-d", "/dev/loop*"]
-    subprocess.run(leftovers, check=False)
+    cleanup_loop_devices()
 
     cmd = ["sudo", "losetup", "-fP", "--show", disk_image_path]
     result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -69,3 +78,21 @@ def create_partitions(loop_device, config):
         subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p1"], check=True)
 
     print("Partitioning and formatting complete.")
+
+
+def mount_partitions(config, loop_device, tmp_dir, vendor, device):
+    rootfs_dir = os.path.join(tmp_dir, vendor, device, "rootfs")
+    os.makedirs(rootfs_dir, exist_ok=True)
+    boot_partition = f"{loop_device}p1"
+    root_partition = f"{loop_device}p2" if "BOOT_SIZE" in config else f"{loop_device}p1"
+
+    if "BOOT_SIZE" in config:
+        boot_dir = os.path.join(rootfs_dir, "boot")
+        os.makedirs(boot_dir, exist_ok=True)
+
+        print(f"Mounting /boot partition at {boot_dir}")
+        subprocess.run(["sudo", "mount", boot_partition, boot_dir], check=True)
+
+    print(f"Mounting root (/) partition at {rootfs_dir}")
+    subprocess.run(["sudo", "mount", root_partition, rootfs_dir], check=True)
+    print("Mounting complete.")
