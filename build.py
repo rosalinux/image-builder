@@ -48,7 +48,11 @@ def build_uboot(config, vendor, device):
 
 def main():
     if len(sys.argv) < 3 or "--distro" not in sys.argv:
-        print("Usage: python build.py --distro <distro_name> <vendor/device> [--skip-kernel] [--skip-uboot]")
+        print("example: python build.py --distro <distro_name> <vendor/device> [--skip-kernel] [--skip-uboot] [--skip-rootfs]")
+        print("""Usage: optional features:
+              --skip-kernel   [do not build kernel]
+              --skip-uboot    [do not build u-boot]
+              --skip-rootfs   [do not create distro rootfs]""")
         sys.exit(1)
 
     distro_idx = sys.argv.index("--distro") + 1
