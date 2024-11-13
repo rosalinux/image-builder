@@ -1,0 +1,7 @@
+RELEASE="rosa13"
+ABF_DOWNLOADS="https://abf-downloads.rosalinux.ru"
+PKGS="basesystem-minimal locales-en dbus coreutils findutils util-linux xz e2fsprogs passwd openssh-server"
+WEAK_DEPS="false"
+DEFAULT_USER="rosa"
+DEFAULT_USER_PASSWORD="rosa"
+PASSWD_ROOT="root"
