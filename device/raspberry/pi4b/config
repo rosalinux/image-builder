@@ -5,3 +5,10 @@ KERNEL_EXTRACONFIG="--module NTFS3_FS --enable NTFS3_LZX_XPRESS --enable NTFS3_F
 DTB="broadcom/bcm2711-rpi-4-b"
 CMDLINE="dwc_otg.lpm_enable=0 console=ttyS0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait"
 NEED_INITRD=no
+
+# /boot is vfat partition
+BOOT_FSTYPE="vfat"
+BOOT_SIZE="256MB"
+# / is ext4 partition
+ROOT_FSTYPE="ext4"
+ROOT_SIZE="1024MB"
