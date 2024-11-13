@@ -6,6 +6,7 @@ import subprocess
 import multiprocessing
 from utils.bootstrap_setup import setup_bootstrap
 from utils.common import load_config
+from utils.make_disk import create_disk_image
 
 BASE_DIR = os.getcwd()
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -84,6 +85,7 @@ def main():
     else:
         print("Skipping rootfs bootstrap")
 
+    create_disk_image(TMP_DIR, config, vendor, device)
     print(f"Build completed for {vendor}/{device} with distro {distro}")
 
 
