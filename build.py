@@ -25,7 +25,7 @@ def build_kernel(config, vendor, device):
 
     os.chdir(kernel_dir)
     subprocess.run(["make", config["KERNEL_CONFIG"]], check=True)
-    subprocess.run(["make", config.get("KERNELTARGET", "Image"), "-j" + NUM_CORES], check=True)
+    subprocess.run(["make", "-j" + NUM_CORES], check=True)
     os.chdir(BASE_DIR)
 
 
@@ -55,6 +55,7 @@ def main():
     config_path = os.path.join("device", vendor, device, "config")
     skip_kernel = "--skip-kernel" in sys.argv
     skip_uboot = "--skip-uboot" in sys.argv
+    skip_rootfs = "--skip-rootfs" in sys.argv
 
     if not os.path.exists(config_path):
         print(f"Configuration file for {vendor}/{device} not found.")
@@ -77,11 +78,13 @@ def main():
     else:
         print("Skipping U-Boot build.")
 
-    setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro)
+    if not skip_rootfs:
+        setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro)
+    else:
+        print("Skipping rootfs bootstrap")
 
     print(f"Build completed for {vendor}/{device} with distro {distro}")
 
 
 if __name__ == "__main__":
     main()
-
