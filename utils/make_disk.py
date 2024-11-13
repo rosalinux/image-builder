@@ -56,7 +56,7 @@ def create_partitions(loop_device, config):
     if boot_size:
         boot_size = boot_size.rstrip("MB")
         fdisk_commands = f"""\nn\np\n\n\n+{boot_size}M\nn\np\n\n\n\nw"""
-        subprocess.run(["sudo", "fdisk", loop_device], input=fdisk_commands, text=True, check=True)
+        subprocess.run(["sudo", "fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
         print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
         subprocess.run(["sudo", "mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
 
@@ -65,8 +65,8 @@ def create_partitions(loop_device, config):
 
     else:
         # Если BOOT_SIZE не задан, создаем один раздел для всей системы
-        fdisk_commands = f"""o\nn\np\n1\n\n+{root_size}M\nw\n"""
-        subprocess.run(["sudo", "fdisk", loop_device], input=fdisk_commands, text=True, check=True)
+        fdisk_commands = f"""o\nn\np\n\n\n+{root_size}M\nw\n"""
+        subprocess.run(["sudo", "fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
 
         # Форматируем один раздел как корневой (/) с учетом root_fstype
         print(f" - Formatting single root (/) partition as {root_fstype} ({root_size} MB)")
