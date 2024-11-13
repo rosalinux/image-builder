@@ -55,7 +55,7 @@ def create_partitions(loop_device, config):
 
     if boot_size:
         boot_size = boot_size.rstrip("MB")
-        fdisk_commands = f"""o\nn\np\n1\n\n+{boot_size}M\nt\nc\nn\np\n2\n\n+{root_size}M\nw\n"""
+        fdisk_commands = f"""\nn\np\n\n\n+{boot_size}M\nn\np\n\n\n\nw"""
         subprocess.run(["sudo", "fdisk", loop_device], input=fdisk_commands, text=True, check=True)
         print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
         subprocess.run(["sudo", "mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
