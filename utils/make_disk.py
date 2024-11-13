@@ -41,3 +41,35 @@ def setup_loop_device(disk_image_path):
     loop_device = result.stdout.strip()
     print(f"Disk image mounted to loop device {loop_device}")
     return loop_device
+
+
+def create_partitions(loop_device, config):
+    # Получаем параметры из конфигурации
+    root_size = config.get("ROOT_SIZE", "1024MB").rstrip("MB")
+    root_fstype = config.get("ROOT_FSTYPE", "ext4")
+    # Проверка наличия BOOT_SIZE
+    boot_size = config.get("BOOT_SIZE")
+    boot_fstype = config.get("BOOT_FSTYPE", "vfat") if boot_size else None
+
+    print(f"Creating partitions on {loop_device}...")
+
+    if boot_size:
+        boot_size = boot_size.rstrip("MB")
+        fdisk_commands = f"""o\nn\np\n1\n\n+{boot_size}M\nt\nc\nn\np\n2\n\n+{root_size}M\nw\n"""
+        subprocess.run(["sudo", "fdisk", loop_device], input=fdisk_commands, text=True, check=True)
+        print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
+        subprocess.run(["sudo", "mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
+
+        print(f" - Formatting root (/) as {root_fstype} ({root_size} MB)")
+        subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p2"], check=True)
+
+    else:
+        # Если BOOT_SIZE не задан, создаем один раздел для всей системы
+        fdisk_commands = f"""o\nn\np\n1\n\n+{root_size}M\nw\n"""
+        subprocess.run(["sudo", "fdisk", loop_device], input=fdisk_commands, text=True, check=True)
+
+        # Форматируем один раздел как корневой (/) с учетом root_fstype
+        print(f" - Formatting single root (/) partition as {root_fstype} ({root_size} MB)")
+        subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p1"], check=True)
+
+    print("Partitioning and formatting complete.")
