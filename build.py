@@ -4,7 +4,8 @@ import os
 import sys
 import subprocess
 import multiprocessing
-from utils.bootstrap_setup import setup_bootstrap, load_config
+from utils.bootstrap_setup import setup_bootstrap
+from utils.common import load_config
 
 BASE_DIR = os.getcwd()
 TMP_DIR = os.path.join(BASE_DIR, "tmp")

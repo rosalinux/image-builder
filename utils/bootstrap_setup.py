@@ -1,16 +1,7 @@
 import os
 import sys
 import subprocess
-
-
-def load_config(config_path):
-    config = {}
-    with open(config_path, "r") as f:
-        for line in f:
-            if "=" in line and not line.strip().startswith("#"):
-                key, value = line.strip().split("=", 1)
-                config[key] = value.strip('"')
-    return config
+from utils.common import load_config
 
 
 def load_bootstrap_config(bootstrap_path):
