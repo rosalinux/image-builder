@@ -50,16 +50,18 @@ enabled=1
         f.write(dnf_conf_content)
 
 
-def run_dnf_install(config, dnf_conf_path, rootfs_dir):
+def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch):
     """Run dnf command to install packages based on the bootstrap configuration."""
     pkgs = config["PKGS"]
     weak_deps = config["WEAK_DEPS"].lower()
 
+    print(f"Bootstrapping '{arch}' rootfs...")
     dnf_command = [
         "sudo",
         "dnf",
         "--setopt=install_weak_deps=" + str(weak_deps),
         "--config", dnf_conf_path,
+        "--forcearch", arch,
         "--installroot", rootfs_dir,
         "install"
     ] + pkgs.split()
@@ -67,7 +69,7 @@ def run_dnf_install(config, dnf_conf_path, rootfs_dir):
     subprocess.run(dnf_command, check=True)
 
 
-def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro):
+def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro, arch):
     # load distro config
     # bootstrap/DISTRO_NAME
     distro_config_path = os.path.join(bootstrap_dir, distro)
@@ -81,6 +83,6 @@ def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro):
     rootfs_dir = os.path.join(tmp_dir, vendor, device, "rootfs")
 
     generate_dnf_conf(dnf_conf_path, config["ABF_DOWNLOADS"], config["RELEASE"])
-    run_dnf_install(config, dnf_conf_path, rootfs_dir)
+    run_dnf_install(config, dnf_conf_path, rootfs_dir, arch)
 
     #setup_user(rootfs_dir, config["DEFAULT_USER"], config["DEFAULT_USER_PASSWORD"], config["PASSWD_ROOT"])

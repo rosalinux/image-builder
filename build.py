@@ -69,9 +69,7 @@ def main():
         sys.exit(1)
 
     config = load_config(config_path)
-    if config["ARCH"] != "aarch64":
-        print("Unsupported architecture.")
-        sys.exit(1)
+    arch = config["ARCH"]
 
     print(f"Building for {vendor}/{device} with distro {distro}...")
 
@@ -86,16 +84,16 @@ def main():
         print("Skipping U-Boot build.")
 
     if not skip_rootfs:
-        setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro)
+        disk_image_path = create_disk_image(TMP_DIR, config, vendor, device)
+        if disk_image_path:
+            loop_device = setup_loop_device(disk_image_path)
+            print(f"Loop device setup at {loop_device}")
+        create_partitions(loop_device, config)
+        mount_partitions(config, loop_device, TMP_DIR, vendor, device)
+        setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro, arch)
+
     else:
         print("Skipping rootfs bootstrap")
-
-    disk_image_path = create_disk_image(TMP_DIR, config, vendor, device)
-    if disk_image_path:
-        loop_device = setup_loop_device(disk_image_path)
-        print(f"Loop device setup at {loop_device}")
-    create_partitions(loop_device, config)
-    mount_partitions(config, loop_device, TMP_DIR, vendor, device)
 
     print(f"Build completed for {vendor}/{device} with distro {distro}")
 
