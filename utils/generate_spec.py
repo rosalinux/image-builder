@@ -3,21 +3,19 @@
 
 import os
 import sys
-from common import load_config
+#from common import load_config
 
-def get_kernel_version(kernel_url, branch):
+def get_kernel_version(config, kernel_url, branch):
     """Extract kernel version from kernel URL and branch"""
     return branch
 
-def generate_spec_file(vendor, device):
+def generate_spec_file(TMP_DIR, config, vendor, device):
     """Generate RPM spec file from template and config"""
     # Load device config
     config_path = os.path.join("device", vendor, device, "config")
     if not os.path.exists(config_path):
         print(f"Error: Config file not found at {config_path}")
         sys.exit(1)
-
-    config = load_config(config_path)
 
     # Load template
     template_path = os.path.join("utils", "kernel.template")
@@ -30,7 +28,7 @@ def generate_spec_file(vendor, device):
 
     # Extract kernel version from kernel URL and branch
     kernel_url, kernel_branch = config["KERNEL"].split("#")
-    kernel_version = get_kernel_version(kernel_url, kernel_branch)
+    kernel_version = get_kernel_version(config, kernel_url, kernel_branch)
 
     # Determine KERNEL_ARCH and CROSS_COMPILE based on ARCH
     arch = config.get("ARCH", "unknown")
@@ -63,13 +61,19 @@ def generate_spec_file(vendor, device):
         replacements["{Source1}"] = ""  # Leave Source1 empty if PRESET_CONFIG is not set
         replacements["{SOURCE1_COMMAND}"] = ""
 
+    kernel_defconfig = config.get("KERNEL_CONFIG", "").strip()
+    if kernel_defconfig:
+        replacements["{MAKE_DEFCONFIG}"] = f"%make_build {kernel_defconfig} ARCH={kernel_arch}"  # Format Source1 correctly
+    else:
+        replacements["{MAKE_DEFCONFIG}"] = ""
+
     # Apply replacements
     spec_content = template
     for key, value in replacements.items():
         spec_content = spec_content.replace(key, value)
 
     # Define output directory and path
-    output_dir = os.path.join("tmp", vendor, device, "kernel-build")
+    output_dir = os.path.join(TMP_DIR, vendor, device, "kernel-build")
     os.makedirs(output_dir, exist_ok=True)
 
     # Write spec file
