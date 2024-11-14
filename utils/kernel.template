@@ -1,0 +1,41 @@
+%define debug_package %{nil}
+%define _modulesdir     /usr/lib/modules
+
+Name:           kernel-{BOARD_NAME}
+Version:        {KERNEL_VERSION}
+Release:        1
+Summary:        kernel for {BOARD_NAME} devices
+Group:          System/Kernel and hardware
+Source0:        kernel.tar
+Source1:        {KERNEL_CONFIG}
+License:        GPLv2
+Provides:       kernel = %{EVRD}
+
+%description
+kernel for ${BOARD_NAME}
+
+%prep
+%autosetup -p1 -n kernel
+cp %{S:1} .config
+grep -Irl /lib/modules | xargs sed -i -e 's,/lib/modules,%{_modulesdir},g' -e 's,/usr/usr/lib/modules,/usr/lib/modules,g'
+
+%build
+%make_build CROSS_COMPILE=/usr/bin/{ARCH}-linux-gnu- ARCH={KERNEL_ARCH}
+
+%install
+# Install kernel modules, if any
+make V=1 modules_install ARCH={KERNEL_ARCH} \
+  INSTALL_MOD_PATH=%{buildroot} \
+  INSTALL_DTBS_PATH=%{buildroot}/boot
+
+make dtbs_install ARCH={KERNEL_ARCH} \
+  INSTALL_MOD_PATH=%{buildroot} \
+  INSTALL_DTBS_PATH=%{buildroot}/boot
+
+cp arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{version}
+
+find %{buildroot} -type f -name "*.ko" -exec %{_bindir}/{ARCH}-linux-gnu-strip {} \;
+
+%files
+/boot/*
+/usr/lib/modules/*
