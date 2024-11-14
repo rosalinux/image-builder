@@ -16,4 +16,4 @@ BOOT_SIZE="256MB"
 ROOT_FSTYPE="ext4"
 ROOT_SIZE="1024MB"
 
-PRESET_CONFIG="local_config"
+# PRESET_CONFIG="local_config"

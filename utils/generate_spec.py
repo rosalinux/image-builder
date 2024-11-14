@@ -54,6 +54,15 @@ def generate_spec_file(vendor, device):
         "{CROSS_COMPILE}": cross_compile  # Add CROSS_COMPILE replacement
     }
 
+    # Handle Source1 based on PRESET_CONFIG
+    preset_config = config.get("PRESET_CONFIG", "").strip()
+    if preset_config:
+        replacements["{Source1}"] = f"Source1: {preset_config}"  # Format Source1 correctly
+        replacements["{SOURCE1_COMMAND}"] = "cp %{S:1} .config"
+    else:
+        replacements["{Source1}"] = ""  # Leave Source1 empty if PRESET_CONFIG is not set
+        replacements["{SOURCE1_COMMAND}"] = ""
+
     # Apply replacements
     spec_content = template
     for key, value in replacements.items():
