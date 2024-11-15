@@ -43,4 +43,4 @@ find %{buildroot} -type f -name "*.ko" -exec %{_bindir}/{ARCH}-linux-gnu-strip {
 
 %files
 /boot/*
-/usr/lib/modules/*
+%{_modulesdir}/*
