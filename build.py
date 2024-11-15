@@ -11,6 +11,8 @@ from utils.make_disk import create_partitions, mount_partitions
 from utils.generate_spec import generate_spec_file
 from utils.kernel import clone_kernel, make_kernel_tar
 from utils.uboot import build_uboot
+from utils.patch import apply_uboot_patches, apply_kernel_patches
+
 
 BASE_DIR = os.getcwd()
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -47,14 +49,14 @@ def main():
     if not skip_kernel:
         generate_spec_file(TMP_DIR, config, vendor, device)
         kernel_dir = os.path.join(TMP_DIR, vendor, device, "kernel")
-        clone_kernel(TMP_DIR, config, vendor, device, kernel_dir)
+        clone_kernel(TMP_DIR, BASE_DIR, config, vendor, device, kernel_dir)
         kernel_rpm_dir = os.path.join(TMP_DIR, vendor, device, "kernel-build")
         make_kernel_tar(kernel_dir, kernel_rpm_dir)
     else:
         print("Skipping kernel build.")
 
     if not skip_uboot:
-        build_uboot(TMP_DIR, config, vendor, device)
+        build_uboot(TMP_DIR, BASE_DIR, config, vendor, device)
     else:
         print("Skipping U-Boot build.")
 
