@@ -3,11 +3,26 @@
 
 import os
 import sys
+import subprocess
 #from common import load_config
 
-def get_kernel_version(config, kernel_url, branch):
-    """Extract kernel version from kernel URL and branch"""
-    return branch
+def get_kernel_version(kernel_dir):
+    """Extract kernel version by running 'make kernelversion' in the kernel directory."""
+    try:
+        result = subprocess.run(
+            ["make", "kernelversion"],
+            cwd=kernel_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Failed to get kernel version from {kernel_dir}")
+        print(e.stderr)
+        sys.exit(1)
+
 
 def generate_spec_file(TMP_DIR, config, vendor, device):
     """Generate RPM spec file from template and config"""
@@ -28,7 +43,14 @@ def generate_spec_file(TMP_DIR, config, vendor, device):
 
     # Extract kernel version from kernel URL and branch
     kernel_url, kernel_branch = config["KERNEL"].split("#")
-    kernel_version = get_kernel_version(config, kernel_url, kernel_branch)
+
+    # Extract kernel version from Makefile
+    kernel_dir = os.path.join(TMP_DIR, vendor, device, "kernel")
+    if not os.path.exists(kernel_dir):
+        print(f"Error: Kernel directory not found at {kernel_dir}")
+        sys.exit(1)
+
+    kernel_version = get_kernel_version(kernel_dir)
 
     # Determine KERNEL_ARCH and CROSS_COMPILE based on ARCH
     arch = config.get("ARCH", "unknown")
