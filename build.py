@@ -10,6 +10,7 @@ from utils.make_disk import create_disk_image, setup_loop_device
 from utils.make_disk import create_partitions, mount_partitions
 from utils.generate_spec import generate_spec_file
 from utils.kernel import clone_kernel, make_kernel_tar
+from utils.uboot import build_uboot
 
 BASE_DIR = os.getcwd()
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
@@ -53,7 +54,7 @@ def main():
         print("Skipping kernel build.")
 
     if not skip_uboot:
-        build_uboot(config, vendor, device)
+        build_uboot(TMP_DIR, config, vendor, device)
     else:
         print("Skipping U-Boot build.")
 
