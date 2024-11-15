@@ -17,6 +17,7 @@ def create_disk_image(tmp_dir, config, vendor, device):
         boot_size = "0"
 
     disk_image_path = os.path.join(tmp_dir, vendor, device, "disk.img")
+    os.makedirs(os.path.dirname(disk_image_path), exist_ok=True)
     cmd = [
         "dd",
         "if=/dev/zero",
@@ -95,4 +96,5 @@ def mount_partitions(config, loop_device, tmp_dir, vendor, device):
 
     print(f"Mounting root (/) partition at {rootfs_dir}")
     subprocess.run(["sudo", "mount", root_partition, rootfs_dir], check=True)
+
     print("Mounting complete.")

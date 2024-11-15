@@ -50,10 +50,12 @@ enabled=1
         f.write(dnf_conf_content)
 
 
-def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch):
+def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs=""):
     """Run dnf command to install packages based on the bootstrap configuration."""
     pkgs = config["PKGS"]
     weak_deps = config["WEAK_DEPS"].lower()
+    if extra_pkgs:
+        pkgs += f" {extra_pkgs}"
 
     print(f"Bootstrapping '{arch}' rootfs...")
     dnf_command = [
@@ -79,10 +81,15 @@ def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro, arch):
 
     config = load_config(distro_config_path)
 
+    device_config_path = os.path.join("device", vendor, device, "config")
+    device_config = load_config(device_config_path) if os.path.exists(device_config_path) else {}
+
+    extra_pkgs = device_config.get("EXTRA_PKGS", "")
+
     dnf_conf_path = os.path.join(tmp_dir, vendor, device, "dnf.conf")
     rootfs_dir = os.path.join(tmp_dir, vendor, device, "rootfs")
 
     generate_dnf_conf(dnf_conf_path, config["ABF_DOWNLOADS"], config["RELEASE"])
-    run_dnf_install(config, dnf_conf_path, rootfs_dir, arch)
+    run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs)
 
     #setup_user(rootfs_dir, config["DEFAULT_USER"], config["DEFAULT_USER_PASSWORD"], config["PASSWD_ROOT"])
