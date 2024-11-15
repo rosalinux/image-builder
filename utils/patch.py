@@ -4,7 +4,6 @@
 import os
 import subprocess
 
-
 def apply_patches(patch_dir, target_dir):
     """
     Applies patches from the specified patch directory to the target directory using `git apply`.
@@ -26,6 +25,17 @@ def apply_patches(patch_dir, target_dir):
         if os.path.isfile(patch_path):
             print(f"Applying patch: {patch}")
             try:
+                check_result = subprocess.run(
+                    ["git", "apply", "--check", patch_path],
+                    cwd=target_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+
+                if check_result.returncode != 0:
+                    print(f"Warning: Patch {patch} has already been applied or conflicts exist. Skipping.")
+                    continue
+
                 subprocess.run(["git", "apply", patch_path], cwd=target_dir, check=True)
             except subprocess.CalledProcessError as e:
                 print(f"Failed to apply patch {patch}: {e}")
