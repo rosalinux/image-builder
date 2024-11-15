@@ -25,7 +25,7 @@ grep -Irl /lib/modules | xargs sed -i -e 's,/lib/modules,%{_modulesdir},g' -e 's
 
 %build
 {MAKE_DEFCONFIG}
-%make_build CROSS_COMPILE=/usr/bin/{ARCH}-linux-gnu- ARCH={KERNEL_ARCH}
+%make_build -s CROSS_COMPILE=/usr/bin/{ARCH}-linux-gnu- ARCH={KERNEL_ARCH}
 
 %install
 # Install kernel modules, if any

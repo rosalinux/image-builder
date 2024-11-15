@@ -12,6 +12,7 @@ from utils.generate_spec import generate_spec_file
 from utils.kernel import clone_kernel, make_kernel_tar
 from utils.uboot import build_uboot
 from utils.patch import apply_uboot_patches, apply_kernel_patches
+from utils.rpmbuild import run_rpmbuild
 
 
 BASE_DIR = os.getcwd()
@@ -52,6 +53,12 @@ def main():
         clone_kernel(TMP_DIR, BASE_DIR, config, vendor, device, kernel_dir)
         kernel_rpm_dir = os.path.join(TMP_DIR, vendor, device, "kernel-build")
         make_kernel_tar(kernel_dir, kernel_rpm_dir)
+        # Call rpmbuild to build the kernel RPM
+        try:
+            run_rpmbuild(kernel_rpm_dir, arch)
+        except Exception as e:
+            print(f"Failed to build RPM: {e}")
+            sys.exit(1)
     else:
         print("Skipping kernel build.")
 
