@@ -6,8 +6,8 @@ import subprocess
 
 def create_disk_image(tmp_dir, config, vendor, device):
 
-    boot_size = config.get("BOOT_SIZE").rstrip("MB")
-    root_size = config.get("ROOT_SIZE").rstrip("MB")
+    boot_size = config.get("BOOT_SIZE", "").rstrip("MB")
+    root_size = config.get("ROOT_SIZE", "0").rstrip("MB")
 
     if not root_size:
         print("Error: ROOT_SIZE is not defined in the configuration.")
@@ -72,7 +72,7 @@ def create_partitions(loop_device, config):
         subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p2"], check=True)
 
     else:
-        fdisk_commands = f"""o\nn\np\n\n\n+{root_size}M\nw\n"""
+        fdisk_commands = f"""o\nn\np\n\n\n\nw\n"""
         subprocess.run(["sudo", "fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
 
         print(f" - Formatting single root (/) partition as {root_fstype} ({root_size} MB)")
