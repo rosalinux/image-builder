@@ -71,12 +71,24 @@ def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs=""):
     subprocess.run(dnf_command, check=True)
 
 
+def set_root_password_with_systemd(rootfs_dir, password_root):
+    """Set root password using systemd-firstboot in chroot environment."""
+    subprocess.run(
+        ["sudo", "systemd-firstboot", "--root-password=", password_root, "--root=", rootfs_dir],
+        check=True
+    )
+    print(f"root password set to '{password_root}' in chroot at {rootfs_dir}")
+
+
 def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro, arch):
     # load distro config
     # bootstrap/DISTRO_NAME
     distro_config_path = os.path.join(bootstrap_dir, distro)
+
     if not os.path.exists(distro_config_path):
         print(f"Bootstrap configuration for distro '{distro}' not found.")
+        current_directory = os.getcwd()
+        print(f"Текущая рабочая директория: {current_directory}")
         sys.exit(1)
 
     config = load_config(distro_config_path)
@@ -91,5 +103,6 @@ def setup_bootstrap(bootstrap_dir, tmp_dir, vendor, device, distro, arch):
 
     generate_dnf_conf(dnf_conf_path, config["ABF_DOWNLOADS"], config["RELEASE"])
     run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs)
+    set_root_password_with_systemd(rootfs_dir, config["PASSWD_ROOT"])
 
     #setup_user(rootfs_dir, config["DEFAULT_USER"], config["DEFAULT_USER_PASSWORD"], config["PASSWD_ROOT"])

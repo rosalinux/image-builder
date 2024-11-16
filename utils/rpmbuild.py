@@ -13,6 +13,7 @@ def run_rpmbuild(kernel_build_dir, target_arch):
         print(f"Error: Kernel build directory '{kernel_build_dir}' does not exist.")
         sys.exit(1)
 
+    base_dir = os.getcwd()
     # Change to the kernel-build directory
     os.chdir(kernel_build_dir)
 
@@ -58,6 +59,8 @@ def run_rpmbuild(kernel_build_dir, target_arch):
     except subprocess.CalledProcessError as e:
         print(f"Error: rpmbuild failed with error code {e.returncode}")
         sys.exit(1)
+    # go back to script dir
+    os.chdir(base_dir)
 
 
 if __name__ == "__main__":

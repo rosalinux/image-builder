@@ -15,7 +15,9 @@ def clone_kernel(TMP_DIR, BASE_DIR, config, vendor, device, kernel_dir):
 
 
 def make_kernel_tar(kernel_dir, kernel_rpm_dir):
+    base_dir = os.getcwd()
     os.chdir(kernel_dir)
     subprocess.run(["git", "archive",
                     "--format=tar", "--prefix=kernel/",
                     f"--output={kernel_rpm_dir}/kernel.tar", "HEAD"])
+    os.chdir(base_dir)
