@@ -40,43 +40,55 @@ def cleanup_loop_devices():
         loop_device = loop_device.strip()
         if loop_device:
             print(f"Detaching {loop_device}")
-            subprocess.run(["sudo", "losetup", "-d", loop_device], check=False)
+            subprocess.run(["losetup", "-d", loop_device], check=False)
 
 
 def setup_loop_device(disk_image_path):
     cleanup_loop_devices()
 
-    cmd = ["sudo", "losetup", "-fP", "--show", disk_image_path]
+    cmd = ["losetup", "-fP", "--show", disk_image_path]
     result = subprocess.run(cmd, check=True, capture_output=True, text=True)
     loop_device = result.stdout.strip()
     print(f"Disk image mounted to loop device {loop_device}")
     return loop_device
 
-
 def create_partitions(loop_device, config):
     root_size = config.get("ROOT_SIZE", "1024MB").rstrip("MB")
     root_fstype = config.get("ROOT_FSTYPE", "ext4")
     boot_size = config.get("BOOT_SIZE")
-    boot_fstype = config.get("BOOT_FSTYPE", "vfat") if boot_size else None
+    boot_fstype = config.get("BOOT_FSTYPE")
 
     print(f"Creating partitions on {loop_device}...")
 
     if boot_size:
         boot_size = boot_size.rstrip("MB")
-        fdisk_commands = f"""\nn\np\n\n\n+{boot_size}M\nn\np\n\n\n\nw"""
-        subprocess.run(["sudo", "fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
-        print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
-        subprocess.run(["sudo", "mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
+
+        # boot partition with BOOT_SIZE from config
+        fdisk_commands = f"""\nn\np\n\n\n+{boot_size}M\n"""
+        # change partition type here to W95 FAT
+        if boot_fstype == "vfat":
+            fdisk_commands += "t\nc\n"
+        fdisk_commands += f"""n\np\n\n\n\nw"""
+
+        # Применяем команды fdisk
+        subprocess.run(["fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
+
+        if boot_fstype == "vfat":
+            print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
+            subprocess.run(["mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
+        else:
+            print(f" - Formatting /boot as {boot_fstype or 'ext4'} ({boot_size} MB)")
+            subprocess.run(["mkfs.ext4", f"{loop_device}p1"], check=True)
 
         print(f" - Formatting root (/) as {root_fstype} ({root_size} MB)")
-        subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p2"], check=True)
+        subprocess.run(["mkfs.ext4", f"{loop_device}p2"], check=True)
 
     else:
         fdisk_commands = f"""o\nn\np\n\n\n\nw\n"""
-        subprocess.run(["sudo", "fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
+        subprocess.run(["fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
 
         print(f" - Formatting single root (/) partition as {root_fstype} ({root_size} MB)")
-        subprocess.run(["sudo", "mkfs.ext4", f"{loop_device}p1"], check=True)
+        subprocess.run(["mkfs.ext4", f"{loop_device}p1"], check=True)
 
     print("Partitioning and formatting complete.")
 
@@ -87,14 +99,13 @@ def mount_partitions(config, loop_device, tmp_dir, vendor, device):
     boot_partition = f"{loop_device}p1"
     root_partition = f"{loop_device}p2" if "BOOT_SIZE" in config else f"{loop_device}p1"
 
+    print(f"Mounting root (/) partition at {rootfs_dir}")
+    subprocess.run(["mount", root_partition, rootfs_dir], check=True)
+
     if "BOOT_SIZE" in config:
         boot_dir = os.path.join(rootfs_dir, "boot")
         os.makedirs(boot_dir, exist_ok=True)
-
         print(f"Mounting /boot partition at {boot_dir}")
-        subprocess.run(["sudo", "mount", boot_partition, boot_dir], check=True)
-
-    print(f"Mounting root (/) partition at {rootfs_dir}")
-    subprocess.run(["sudo", "mount", root_partition, rootfs_dir], check=True)
+        subprocess.run(["mount", boot_partition, boot_dir], check=True)
 
     print("Mounting complete.")

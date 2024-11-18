@@ -1,20 +1,20 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: John Doe <john.doe@somewhere.on.planet>
-Date: Fri, 25 Oct 2024 14:54:00 +0000
-Subject: Patching u-boot rk35xx files arch/arm/dts/OK3568-C.dts
- configs/OK3568-rk3568_defconfig
+From 9d0b75e07f457afb6f3f27186e73daf251b9d88c Mon Sep 17 00:00:00 2001
+From: alexander stefanov <alexander@mezon.ru>
+Date: Sat, 16 Nov 2024 14:13:14 +0300
+Subject: [PATCH] add rk3568-ok3568c board
 
-Signed-off-by: John Doe <john.doe@somewhere.on.planet>
 ---
- arch/arm/dts/OK3568-C.dts       | 475 ++++++++++
- configs/OK3568-rk3568_defconfig | 220 +++++
+ arch/arm/dts/rk3568-ok3568c.dts  | 475 +++++++++++++++++++++++++++++++
+ configs/rk3568-ok3568c_defconfig | 220 ++++++++++++++
  2 files changed, 695 insertions(+)
+ create mode 100644 arch/arm/dts/rk3568-ok3568c.dts
+ create mode 100644 configs/rk3568-ok3568c_defconfig
 
-diff --git a/arch/arm/dts/OK3568-C.dts b/arch/arm/dts/OK3568-C.dts
+diff --git a/arch/arm/dts/rk3568-ok3568c.dts b/arch/arm/dts/rk3568-ok3568c.dts
 new file mode 100644
-index 00000000000..21131dbba6b
+index 0000000..ae3003e
 --- /dev/null
-+++ b/arch/arm/dts/OK3568-C.dts
++++ b/arch/arm/dts/rk3568-ok3568c.dts
 @@ -0,0 +1,475 @@
 +/*
 + * SPDX-License-Identifier:     GPL-2.0+
@@ -491,11 +491,11 @@ index 00000000000..21131dbba6b
 +               };
 +       };
 +};
-diff --git a/configs/OK3568-rk3568_defconfig b/configs/OK3568-rk3568_defconfig
+diff --git a/configs/rk3568-ok3568c_defconfig b/configs/rk3568-ok3568c_defconfig
 new file mode 100644
-index 00000000000..65ecbfcd904
+index 0000000..0832186
 --- /dev/null
-+++ b/configs/OK3568-rk3568_defconfig
++++ b/configs/rk3568-ok3568c_defconfig
 @@ -0,0 +1,220 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_ROCKCHIP=y
@@ -514,7 +514,7 @@ index 00000000000..65ecbfcd904
 +CONFIG_SPL_NAND_SUPPORT=y
 +CONFIG_SPL_SPI_FLASH_SUPPORT=y
 +CONFIG_SPL_SPI_SUPPORT=y
-+CONFIG_DEFAULT_DEVICE_TREE="OK3568-C"
++CONFIG_DEFAULT_DEVICE_TREE="rk3568-ok3568c"
 +CONFIG_SMBIOS_PRODUCT_NAME=""
 +CONFIG_DEBUG_UART=y
 +CONFIG_FIT=y
@@ -717,5 +717,6 @@ index 00000000000..65ecbfcd904
 +CONFIG_RK_AVB_LIBAVB_USER=y
 +CONFIG_OPTEE_CLIENT=y
 +CONFIG_OPTEE_V2=y
---
-Created with Armbian build tools https://github.com/armbian/build
+-- 
+2.46.1
+

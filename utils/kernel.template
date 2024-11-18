@@ -31,7 +31,7 @@ grep -Irl /lib/modules | xargs sed -i -e 's,/lib/modules,%{_modulesdir},g' -e 's
 # Install kernel modules, if any
 make V=1 modules_install ARCH={KERNEL_ARCH} \
   INSTALL_MOD_PATH=%{buildroot} \
-  INSTALL_DTBS_PATH=%{buildroot}/boot
+  INSTALL_DTBS_PATH=%{buildroot}/boot/dtbs
 
 make dtbs_install ARCH={KERNEL_ARCH} \
   INSTALL_MOD_PATH=%{buildroot} \
