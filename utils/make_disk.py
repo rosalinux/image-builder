@@ -55,43 +55,49 @@ def setup_loop_device(disk_image_path):
 def create_partitions(loop_device, config):
     root_size = config.get("ROOT_SIZE", "1024MB").rstrip("MB")
     root_fstype = config.get("ROOT_FSTYPE", "ext4")
-    boot_size = config.get("BOOT_SIZE")
-    boot_fstype = config.get("BOOT_FSTYPE")
+    boot_size = config.get("BOOT_SIZE", "0").rstrip("MB")  # Default to 0 if not specified
+    boot_fstype = config.get("BOOT_FSTYPE", "ext4") # Default to ext4 if not specified
 
-    print(f"Creating partitions on {loop_device}...")
+    print(f"Creating partitions on {loop_device} using sgdisk...")
 
-    if boot_size:
-        boot_size = boot_size.rstrip("MB")
+    try:
+        # Clear existing partitions
+        subprocess.run(["sgdisk", "--zap-all", loop_device], check=True)
 
-        # boot partition with BOOT_SIZE from config
-        fdisk_commands = f"""\nn\np\n\n\n+{boot_size}M\n"""
-        # change partition type here to W95 FAT
-        if boot_fstype == "vfat":
-            fdisk_commands += "t\nc\n"
-        fdisk_commands += f"""n\np\n\n\n\nw"""
+        if int(boot_size) > 0:
+            # Create boot partition
+            # 16M here s empty space for u-boot
+            subprocess.run(["sgdisk",
+                            "--new=1:16M:+{}M".format(boot_size),
+                            "--typecode=1:8300", loop_device], check=True)
 
-        # Применяем команды fdisk
-        subprocess.run(["fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
+            # Create root partition
+            subprocess.run(["sgdisk",
+                            "--new=2:0:0",
+                            "--typecode=2:8300", loop_device], check=True)
 
-        if boot_fstype == "vfat":
-            print(f" - Formatting /boot as {boot_fstype} ({boot_size} MB)")
-            subprocess.run(["mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
+            # Format partitions
+            if boot_fstype == "vfat":
+                subprocess.run(["mkfs.vfat", "-F", "32", f"{loop_device}p1"], check=True)
+            else:
+                subprocess.run(["mkfs.ext4", f"{loop_device}p1"], check=True)
+            subprocess.run(["mkfs.ext4", f"{loop_device}p2"], check=True)
+
+            print(f" - Boot partition ({boot_size}MB) created and formatted as {boot_fstype}")
+            print(f" - Root partition created and formatted as {root_fstype}")
+
         else:
-            print(f" - Formatting /boot as {boot_fstype or 'ext4'} ({boot_size} MB)")
+            # Create single root partition
+            subprocess.run(["sgdisk", "--new=1:0:0", "--typecode=1:8300", loop_device], check=True)
             subprocess.run(["mkfs.ext4", f"{loop_device}p1"], check=True)
+            print(f" - Single root partition created and formatted as {root_fstype}")
 
-        print(f" - Formatting root (/) as {root_fstype} ({root_size} MB)")
-        subprocess.run(["mkfs.ext4", f"{loop_device}p2"], check=True)
-
-    else:
-        fdisk_commands = f"""o\nn\np\n\n\n\nw\n"""
-        subprocess.run(["fdisk", "--wipe", "always", loop_device], input=fdisk_commands, text=True, check=True)
-
-        print(f" - Formatting single root (/) partition as {root_fstype} ({root_size} MB)")
-        subprocess.run(["mkfs.ext4", f"{loop_device}p1"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error creating partitions with sgdisk: {e}")
+        return False
 
     print("Partitioning and formatting complete.")
-
+    return True
 
 def mount_partitions(config, loop_device, tmp_dir, vendor, device):
     rootfs_dir = os.path.join(tmp_dir, vendor, device, "rootfs")

@@ -3,7 +3,7 @@ BOOT_SOC="rk3568"
 
 # kernel section
 KERNEL="https://github.com/armbian/linux-rockchip.git#rk-6.1-rkr3"
-KERNEL_CONFIG="rockchip_linux_defconfig"
+KERNEL_CONFIG="kernel_ok3568_defconfig"
 DTB="rockchip/rk3568-ok3568c"
 
 # u-boot section
@@ -13,13 +13,14 @@ UBOOT_CONFIG="rk3568-ok3568c_defconfig"
 
 # cmdline
 CMDLINE="earlycon=uart8250,mmio32,0xfeb50000 console=ttyFIQ0 console=tty1 consoleblank=0 irqchip.gicv3_pseudo_nmi=0 switolb=1 coherent_pool=2M cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1"
+EXTRA_PKGS="uboot-tools dracut neovim"
 
 # disk section
 # /boot is vfat partition
 BOOT_FSTYPE="vfat"
 BOOT_SIZE="256MB"
 # / is ext4 partition
-ROOT_SIZE="1024MB"
+ROOT_SIZE="1500MB"
 ROOT_FSTYPE="ext4"
 
 # platform section
@@ -32,3 +33,9 @@ UBOOT_BUILD="make BL31={BL31} spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COM
 
 # dd if=idbloader.img of=/dev/loop1 seek=64 conv=notrunc status=none
 # dd if=u-boot.itb of=/dev/loop1 seek=16384 conv=notrunc status=none
+# mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initramfs-6.1.75.img /boot/uInitrd
+# mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
+# sgdisk --zap-all /dev/loop0
+# sgdisk --new=1:15M:+256M --typecode=1:8300 /dev/loop0
+# sgdisk --new=2:0:0 --typecode=2:8300 /dev/loop0
+# dracut --regenerate-all --force

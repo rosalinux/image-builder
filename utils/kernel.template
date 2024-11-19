@@ -35,11 +35,9 @@ make V=1 modules_install ARCH={KERNEL_ARCH} \
 
 make dtbs_install ARCH={KERNEL_ARCH} \
   INSTALL_MOD_PATH=%{buildroot} \
-  INSTALL_DTBS_PATH=%{buildroot}/boot
+  INSTALL_DTBS_PATH=%{buildroot}/boot/dtbs
 
 cp arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{version}
-
-find %{buildroot} -type f -name "*.ko" -exec %{_bindir}/{ARCH}-linux-gnu-strip {} \;
 
 %files
 /boot/*

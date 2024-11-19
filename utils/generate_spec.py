@@ -70,7 +70,7 @@ def generate_spec_file(TMP_DIR, config, vendor, device):
         "{DEVICE_NAME}": device_name,
         "{KERNEL_ARCH}": kernel_arch,
         "{ARCH}": arch,  # Add ARCH replacement
-        "{KERNEL_CONFIG}": kernel_config,  # Add ARCH replacement
+        "{KERNEL_CONFIG}": kernel_config,
         "{CROSS_COMPILE}": cross_compile  # Add CROSS_COMPILE replacement
     }
 
