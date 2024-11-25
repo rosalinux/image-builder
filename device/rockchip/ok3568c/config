@@ -26,12 +26,14 @@ ROOT_FSTYPE="ext4"
 
 # platform section
 # # put it in blobs dir
-RK_DDR="rk3568_ddr_1560MHz_v1.21.bin"
+RK_DDR="rk3568_ddr_1560MHz_v1.23.bin"
 BL31="rk3568_bl31_v1.44.elf"
+UBOOT_BUILD="make KCFLAGS='-Wno-error' BL31={BL31} spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COMPILE='{ARCH}-linux-gnu-'"
 MKIMAGE_CMD="tools/mkimage -n {BOOT_SOC} -T rksd -d {RK_DDR}:spl/u-boot-spl.bin idbloader.img"
-UBOOT_BUILD="make BL31={BL31} spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COMPILE='{ARCH}-linux-gnu-'"
-# make BL31=rk3568_bl31_v1.44.elf spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COMPILE="aarch64-linux-gnu-"
+# url to download rockchip bootloader blobs
+BLOBS_URL="https://github.com/rockchip-linux/rkbin/raw/refs/heads/master/bin/rk35/"
 
+# make BL31=rk3568_bl31_v1.44.elf spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COMPILE="aarch64-linux-gnu-"
 # dd if=idbloader.img of=/dev/loop1 seek=64 conv=notrunc status=none
 # dd if=u-boot.itb of=/dev/loop1 seek=16384 conv=notrunc status=none
 # mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initramfs-6.1.75.img /boot/uInitrd

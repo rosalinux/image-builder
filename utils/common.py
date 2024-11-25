@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import subprocess
+from urllib.request import urlretrieve
 
 def load_config(config_path):
     config = {}
@@ -18,3 +19,16 @@ def clone_repo(repo_url, branch, dest_dir, name):
     else:
         os.makedirs(dest_dir, exist_ok=True)
         subprocess.run(["git", "clone", "--depth", "1", repo_url, "-b", branch, dest_dir], check=True)
+
+
+def download_blob(blob_url, destination):
+    """Download a file from the given URL and save it to the destination."""
+    try:
+        print(f"Downloading {blob_url} to {destination}...")
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        urlretrieve(blob_url, destination)
+        print(f"Downloaded: {destination}")
+        return True
+    except Exception as e:
+        print(f"Warning: Unable to download {blob_url}. {e}")
+        return False
