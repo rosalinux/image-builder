@@ -8,8 +8,8 @@ echo "Boot script loaded from ${devtype} ${devnum}:${distro_bootpart}"
 
 load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} ${prefix}uInitrd
 load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} ${prefix}Image
-
 load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} ${prefix}${fdtfile}
+
 fdt addr ${fdt_addr_r}
 fdt resize 65536
 

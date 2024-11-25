@@ -48,9 +48,9 @@ def main():
     print(f"Building for {vendor}/{device} with distro {distro}...")
 
     if not skip_kernel:
-        generate_spec_file(TMP_DIR, config, vendor, device)
         kernel_dir = os.path.join(TMP_DIR, vendor, device, "kernel")
         clone_kernel(TMP_DIR, BASE_DIR, config, vendor, device, kernel_dir)
+        generate_spec_file(TMP_DIR, config, vendor, device)
         kernel_rpm_dir = os.path.join(TMP_DIR, vendor, device, "kernel-build")
         make_kernel_tar(kernel_dir, kernel_rpm_dir)
         # Call rpmbuild to build the kernel RPM

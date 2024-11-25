@@ -4,6 +4,7 @@
 import os
 import sys
 import subprocess
+import shutil
 #from common import load_config
 
 def get_kernel_version(kernel_dir):
@@ -97,6 +98,14 @@ def generate_spec_file(TMP_DIR, config, vendor, device):
     # Define output directory and path
     output_dir = os.path.join(TMP_DIR, vendor, device, "kernel-build")
     os.makedirs(output_dir, exist_ok=True)
+    # Copy PRESET_CONFIG file if it exists
+    if preset_config:
+        preset_config_path = os.path.join("device", vendor, device, preset_config)
+        if os.path.exists(preset_config_path):
+            shutil.copy(preset_config_path, output_dir)
+            print(f"Copied {preset_config} to {output_dir}")
+        else:
+            print(f"Warning: PRESET_CONFIG file {preset_config_path} not found.")
 
     # Write spec file
     spec_file_path = os.path.join(output_dir, f"kernel-{device_name}.spec")
