@@ -32,13 +32,19 @@ UBOOT_BUILD="make KCFLAGS='-Wno-error' BL31={BL31} spl/u-boot-spl.bin u-boot.dtb
 MKIMAGE_CMD="tools/mkimage -n {BOOT_SOC} -T rksd -d {RK_DDR}:spl/u-boot-spl.bin idbloader.img"
 # url to download rockchip bootloader blobs
 BLOBS_URL="https://github.com/rockchip-linux/rkbin/raw/refs/heads/master/bin/rk35/"
+BOOT_IDB="idbloader.img"
+BOOT_ITB="u-boot.itb"
+UINITRD="yes"
 
 # make BL31=rk3568_bl31_v1.44.elf spl/u-boot-spl.bin u-boot.dtb u-boot.itb CROSS_COMPILE="aarch64-linux-gnu-"
+#
 # dd if=idbloader.img of=/dev/loop1 seek=64 conv=notrunc status=none
 # dd if=u-boot.itb of=/dev/loop1 seek=16384 conv=notrunc status=none
-# mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initramfs-6.1.75.img /boot/uInitrd
-# mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
+#
 # sgdisk --zap-all /dev/loop0
 # sgdisk --new=1:15M:+256M --typecode=1:8300 /dev/loop0
 # sgdisk --new=2:0:0 --typecode=2:8300 /dev/loop0
+#
 # dracut --regenerate-all --force
+# mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initramfs-6.1.75.img /boot/uInitrd
+# mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr

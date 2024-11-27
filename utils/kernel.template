@@ -1,5 +1,6 @@
-%define debug_package %{nil}
-%define _modulesdir     /usr/lib/modules
+%global debug_package %{nil}
+%global _build_pkgcheck_set %nil
+%global _modulesdir     /usr/lib/modules
 
 Name:           kernel-{BOARD_NAME}
 Version:        {KERNEL_VERSION}
