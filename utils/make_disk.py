@@ -3,7 +3,6 @@
 import os
 import subprocess
 
-
 def create_disk_image(tmp_dir, config, vendor, device):
 
     boot_size = config.get("BOOT_SIZE", "").rstrip("MB")

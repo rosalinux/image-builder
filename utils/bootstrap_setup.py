@@ -63,6 +63,7 @@ def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs=""):
         "dnf",
         "--setopt=install_weak_deps=" + str(weak_deps),
         "--config", dnf_conf_path,
+        "--nodocs",
         "--forcearch", arch,
         "--installroot", rootfs_dir,
         "install"

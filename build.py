@@ -10,7 +10,7 @@ from utils.make_disk import create_disk_image, setup_loop_device
 from utils.make_disk import create_partitions, mount_partitions
 from utils.generate_spec import generate_spec_file
 from utils.kernel import clone_kernel, make_kernel_tar
-from utils.uboot import build_uboot
+from utils.uboot import build_uboot, flash_uboot
 from utils.patch import apply_uboot_patches, apply_kernel_patches
 from utils.rpmbuild import run_rpmbuild
 
@@ -75,6 +75,8 @@ def main():
             print(f"Loop device setup at {loop_device}")
         # fdisk, mkfs here
         create_partitions(loop_device, config)
+        if not skip_uboot:
+            flash_uboot(loop_device, TMP_DIR, config, vendor, device)
         mount_partitions(config, loop_device, TMP_DIR, vendor, device)
         # dnf install rootfs here
         setup_bootstrap("bootstrap", TMP_DIR, vendor, device, distro, arch)
