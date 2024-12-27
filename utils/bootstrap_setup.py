@@ -69,7 +69,7 @@ def run_dnf_install(config, dnf_conf_path, rootfs_dir, arch, extra_pkgs=""):
         "install"
     ] + pkgs.split()
 
-    subprocess.run(dnf_command, check=True)
+    subprocess.run(dnf_command, check=True, stdout=subprocess.DEVNULL)
 
 
 def set_root_password_with_systemd(rootfs_dir, password_root):

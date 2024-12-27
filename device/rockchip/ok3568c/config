@@ -2,7 +2,7 @@ ARCH="aarch64"
 BOOT_SOC="rk3568"
 
 # kernel section
-KERNEL="https://github.com/armbian/linux-rockchip.git#rk-6.1-rkr3"
+KERNEL="https://github.com/armbian/linux-rockchip.git#rk-6.1-rkr4.1"
 PRESET_CONFIG="kernel_ok3568_defconfig"
 DTB="dtbs/rockchip/rk3568-ok3568c"
 
