@@ -1,5 +1,5 @@
 RELEASE="rosa13"
-ABF_DOWNLOADS="https://abf-downloads.rosalinux.ru"
+ABF_DOWNLOADS="https://abf-downloads.rosa.ru"
 PKGS="basesystem systemd openssh-server dnf rosa-repos"
 WEAK_DEPS="false"
 DEFAULT_USER="rosa"
