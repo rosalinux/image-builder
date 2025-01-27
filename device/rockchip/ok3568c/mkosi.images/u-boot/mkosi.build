@@ -1,6 +1,4 @@
 #!/bin/sh
-set -x
-
 echo "--- mkosi.build: args=$@"
 echo "--- mkosi.build: container=$container"
 
@@ -16,7 +14,18 @@ echo "--- mkosi.build: builddir=$BUILDDIR"
 
 cd $SRCDIR
 echo "--- mkosi.build: clone u-boot"
-dnf in -y python2 --release 13
+
+if [ -f "${SRCDIR}/mkosi/idbloader.img" ]; then
+    echo "--- mkosi.build: idbloader.img already exist, skipping u-boot build..."
+    exit 0
+fi
+
+dnf in -y --release 13 python2
+dnf in -y --release 13 basesystem-build curl \
+        dnf git gcc-aarch64-linux-gnu \
+        binutils-aarch64-linux-gnu \
+        wget dtc bc
+
 git clone https://github.com/radxa/u-boot.git --depth 1 -b next-dev-v2024.03
 cd u-boot
 git apply ${SRCDIR}/configuration/*.patch

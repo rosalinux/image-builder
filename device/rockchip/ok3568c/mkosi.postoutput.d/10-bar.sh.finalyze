@@ -1,6 +1,9 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-set -x
-env
-ls -la ${SRCDIR}
-ls -la ${OUTPUTDIR}
+UBOOT_DIR="${SRCDIR}/mkosi"
+
+pushd ${OUTPUTDIR}
+printf "write bootloader to the image...\n"
+dd if=${UBOOT_DIR}/idbloader.img of=image.raw seek=64 conv=notrunc
+dd if=${UBOOT_DIR}/u-boot.itb of=image.raw seek=16384 conv=notrunc
+popd
