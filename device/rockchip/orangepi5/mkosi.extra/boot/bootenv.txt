@@ -1,0 +1,9 @@
+verbosity=1
+console=both
+extraargs=cma=256M
+overlay_prefix=rk3588
+overlays=ov13850-c2
+fdtfile=dtbs/rockchip/rk3588s-orangepi-5.dtb
+rootdev=LABEL=rootfs
+rootfstype=ext4
+usbstoragequirks=0x2537:0x1066:u,0x2537:0x1068:u

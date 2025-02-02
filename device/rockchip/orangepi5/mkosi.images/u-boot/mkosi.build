@@ -1,0 +1,45 @@
+#!/bin/sh
+if [ "$container" != "mkosi" ]; then
+	exec mkosi-chroot "$CHROOT_SCRIPT" "$@"
+fi
+
+echo "--- mkosi.build: pwd=$PWD"
+echo "--- mkosi.build: srcdir=$SRCDIR"
+echo "--- mkosi.build: builddir=$BUILDDIR"
+
+cd $SRCDIR
+echo "--- mkosi.build: clone u-boot"
+
+if [ -f "${SRCDIR}/mkosi/idbloader.img" ]; then
+    echo "--- mkosi.build: idbloader.img already exist, skipping u-boot build..."
+    exit 0
+fi
+
+dnf in -y --release 13 python2
+dnf in -y --release 13 basesystem-build curl \
+        dnf git gcc-aarch64-linux-gnu \
+        binutils-aarch64-linux-gnu \
+        wget dtc bc
+
+git clone https://github.com/radxa/u-boot.git --depth 1 -b next-dev-v2024.03
+cd u-boot
+make -C ${SRCDIR}/configuration
+cp -fv ${SRCDIR}/configuration/*.dts arch/arm/dts/
+cp -fv ${SRCDIR}/configuration/orangepi-5-rk3588s_defconfig configs/orangepi-5-rk3588s_defconfig
+BL31="rk3588_bl31_v1.44.elf"
+RKDDR="rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.15.bin"
+BOOT_SOC="rk3588"
+ARCH="aarch64"
+
+wget https://github.com/armbian/rkbin/raw/refs/heads/master/rk35/${BL31}
+wget https://github.com/armbian/rkbin/raw/refs/heads/master/rk35/${RKDDR}
+
+make orangepi-5-rk3588s_defconfig
+make -s -j$(nproc) KCFLAGS="-Wno-error" \
+  BL31=${BL31} \
+  spl/u-boot-spl.bin \
+  u-boot.dtb u-boot.itb CROSS_COMPILE="${ARCH}-linux-gnu-"
+
+tools/mkimage -n ${BOOT_SOC} -T rksd -d ${RKDDR}:spl/u-boot-spl.bin idbloader.img
+
+cp -fv idbloader.img u-boot.itb ${SRCDIR}/mkosi/

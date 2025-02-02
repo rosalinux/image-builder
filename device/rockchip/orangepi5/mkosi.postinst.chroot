@@ -1,0 +1,27 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+
+set -Eeuo pipefail
+
+version=$(rpm -q --queryformat '%{version}\n' kernel-6.1-orangepi)
+printf "Generate /boot/uInitrd-${version}...\n"
+# mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initrd-%{version}.img /boot/uInitrd
+mkimage -A arm64 -O linux -T ramdisk -C gzip -d /boot/initrd-${version}.img /boot/uInitrd-${version}
+
+printf "Remove dracut-generated initrd...\n"
+rm -fv /boot/initrd-${version}.img
+rm -fv /boot/uInitrd
+
+# generate boot.scr
+# see mkosi.extra/boot/boot.cmd
+printf "Adjust /boot/bootenv.txt for kernel/initrd ${version}...\n"
+printf "initrd_image=uInitrd-${version}\n" >> /boot/bootenv.txt
+printf "kernel_image=vmlinuz-${version}\n" >> /boot/bootenv.txt
+
+printf "Current /boot/bootenv.txt...\n"
+printf "#########################\n"
+cat /boot/bootenv.txt
+printf "#########################\n"
+
+printf "Generate /boot/boot.scr...\n"
+/usr/bin/mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
