@@ -2,7 +2,7 @@
 set -x
 
 # Run mkosi with --force option
-#mkosi --force
+mkosi --force
 
 # Check if mkosi ran successfully
 if [ $? -ne 0 ]; then
