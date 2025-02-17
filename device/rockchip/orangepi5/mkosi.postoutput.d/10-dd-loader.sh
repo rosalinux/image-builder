@@ -26,3 +26,6 @@
 #dd if=${UBOOT_DIR}/idbloader.img of=${IMAGE} seek=64 conv=notrunc
 #dd if=${UBOOT_DIR}/u-boot.itb of=${IMAGE} seek=16384 conv=notrunc
 #popd
+#echo "nameserver 8.8.8.8" > /etc/resolv.conf
+#dnf in -y camera_engine_rkaiq
+#systemctl enable rkaiq_3A.service 
