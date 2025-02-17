@@ -5,12 +5,11 @@ set -Eeuo pipefail
 
 version=$(rpm -q --queryformat '%{version}\n' kernel-6.1-orangepi)
 printf "Generate /boot/uInitrd-${version}...\n"
-# mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d /boot/initrd-%{version}.img /boot/uInitrd
-mkimage -A arm64 -O linux -T ramdisk -C gzip -d /boot/initrd-${version}.img /boot/uInitrd-${version}
+dracut --force --regenerate-all
+mkimage -A arm64 -O linux -T ramdisk -C none -n uInitrd -d /boot/initramfs-${version}.img /boot/uInitrd-${version}
 
 printf "Remove dracut-generated initrd...\n"
-rm -fv /boot/initrd-${version}.img
-rm -fv /boot/uInitrd
+rm -fv /boot/initramfs-${version}.img
 
 # generate boot.scr
 # see mkosi.extra/boot/boot.cmd
