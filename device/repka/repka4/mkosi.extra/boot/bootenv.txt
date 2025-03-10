@@ -1,0 +1,5 @@
+loglevel=7
+console=both
+fdtfile=dtbs/allwinner/sun50i-h6-repka-pi4-optimal.dtb
+rootdev=LABEL=rootfs
+rootfstype=ext4
