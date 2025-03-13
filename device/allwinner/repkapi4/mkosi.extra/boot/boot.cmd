@@ -3,7 +3,7 @@
 # Please edit /boot/bootenv.txt to set supported parameters
 #
 
-setenv load_addr "0x45000000"
+setenv load_addr "0x44500000"
 setenv overlay_error "false"
 # default values
 setenv rootdev "/dev/mmcblk0p1"
