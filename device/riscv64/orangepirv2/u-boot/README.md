@@ -7,10 +7,15 @@
 Перед началом убедитесь, что у вас установлен необходимый компилятор и утилиты:
 
 ```sh
-sudo dnf install gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu
+sudo dnf install gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu make
 ```
+## Автоматическая сборка U-Boot
+1. в каталоге u-boot выполнить
+   ```sh
+   make
+   ```
 
-## Сборка U-Boot
+## Ручная сборка U-Boot
 
 1. Клонируйте репозиторий U-Boot:
    
