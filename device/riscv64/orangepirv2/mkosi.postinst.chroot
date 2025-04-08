@@ -6,7 +6,7 @@ set -Eeuo pipefail
 version=$(rpm -q --queryformat '%{version}\n' kernel-6.6-orangepirv2)
 printf "Generate u-boot initrd /boot/uInitrd-${version}...\n"
 dracut --force --regenerate-all
-mkimage -A arm64 -O linux -T ramdisk -C none -n uInitrd -d /boot/initramfs-${version}.img /boot/uInitrd-${version}
+mkimage -A riscv -O linux -T ramdisk -C none -n uInitrd -d /boot/initramfs-${version}.img /boot/uInitrd-${version}
 
 printf "Remove dracut-generated initrd...\n"
 rm -fv /boot/initramfs-${version}.img
