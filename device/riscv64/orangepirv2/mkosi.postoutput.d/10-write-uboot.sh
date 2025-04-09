@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 BOOTINFO_SD="${SRCDIR}/bootinfo_sd.bin"
 FSBL="${SRCDIR}/FSBL.bin"
@@ -25,8 +24,8 @@ fi
 
 pushd "${OUTPUTDIR}"
 printf "Writing bootloader to the image...\n"
-dd if=${BOOTINFO_SD} of=image.raw seek=0 conv=notrunc
-dd if=${FSBL} of=image.raw seek=256 conv=notrunc
-dd if=${UBOOT_ENV} of=image.raw seek=768 conv=notrunc
-dd if=${OPENSBI} of=image.raw seek=1664 conv=notrunc
+#dd if=${BOOTINFO_SD} of=image.raw seek=0 conv=notrunc
+#dd if=${FSBL} of=image.raw seek=256 conv=notrunc
+#dd if=${UBOOT_ENV} of=image.raw seek=768 conv=notrunc
+#dd if=${OPENSBI} of=image.raw seek=1664 conv=notrunc
 popd
