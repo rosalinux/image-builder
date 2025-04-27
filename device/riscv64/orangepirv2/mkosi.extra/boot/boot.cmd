@@ -72,4 +72,4 @@ kaslrseed # @TODO: This gives an error (Unknown command ' kaslrseed ' - try 'hel
 booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
 
 # Recompile with:
-# mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
+# mkimage -C none -A riscv -T script -d /boot/boot.cmd /boot/boot.scr
