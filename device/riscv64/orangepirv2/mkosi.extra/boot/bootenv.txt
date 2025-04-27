@@ -1,5 +1,5 @@
 verbosity=7
 console=both
-fdtfile=dtbs/ky/x1_orangepi-rv2.dtb
+fdtfile=dtbs/spacemit/x1_orangepi-rv2.dtb
 rootdev=LABEL=rootfs
 rootfstype=ext4

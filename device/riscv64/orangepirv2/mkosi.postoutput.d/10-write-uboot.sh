@@ -24,8 +24,8 @@ fi
 
 pushd "${OUTPUTDIR}"
 printf "Writing bootloader to the image...\n"
-#dd if=${BOOTINFO_SD} of=image.raw seek=0 conv=notrunc
-#dd if=${FSBL} of=image.raw seek=256 conv=notrunc
-#dd if=${UBOOT_ENV} of=image.raw seek=768 conv=notrunc
-#dd if=${OPENSBI} of=image.raw seek=1664 conv=notrunc
+dd if=${BOOTINFO_SD} of=image.raw seek=0 conv=notrunc
+dd if=${FSBL} of=image.raw seek=256 conv=notrunc
+dd if=${UBOOT_ENV} of=image.raw seek=768 conv=notrunc
+dd if=${OPENSBI} of=image.raw seek=1664 conv=notrunc
 popd
