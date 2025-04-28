@@ -7,9 +7,6 @@ version=$(rpm -q --queryformat '%{version}\n' kernel-6.14-spacemit)
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
 
-printf "Remove dracut-generated initrd...\n"
-rm -fv /boot/initramfs-${version}.img
-
 # generate boot.scr
 # see mkosi.extra/boot/boot.cmd
 printf "Adjust /boot/bootenv.txt for kernel/initrd ${version}...\n"
