@@ -5,6 +5,7 @@
 setenv rootdev "/dev/mmcblk0p1"
 setenv verbosity "7"
 setenv rootfstype "ext4"
+setenv load_addr "0x44500000"
 
 test -n "${distro_bootpart}" || distro_bootpart=1
 
