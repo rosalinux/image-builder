@@ -4,9 +4,8 @@
 set -Eeuo pipefail
 
 version=$(rpm -q --queryformat '%{version}\n' kernel-6.14-spacemit)
-printf "Generate u-boot initrd /boot/uInitrd-${version}...\n"
+printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
-mkimage -A riscv -O linux -T ramdisk -C none -n uInitrd -d /boot/initramfs-${version}.img /boot/uInitrd-${version}
 
 printf "Remove dracut-generated initrd...\n"
 rm -fv /boot/initramfs-${version}.img
@@ -14,7 +13,7 @@ rm -fv /boot/initramfs-${version}.img
 # generate boot.scr
 # see mkosi.extra/boot/boot.cmd
 printf "Adjust /boot/bootenv.txt for kernel/initrd ${version}...\n"
-printf "initrd_image=uInitrd-${version}\n" >> /boot/bootenv.txt
+printf "initrd_image=initramfs-${version}.img\n" >> /boot/bootenv.txt
 printf "kernel_image=vmlinuz-${version}\n" >> /boot/bootenv.txt
 
 printf "Current /boot/bootenv.txt...\n"
