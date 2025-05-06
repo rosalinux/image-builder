@@ -47,11 +47,9 @@ mkosi --force
 
 This will produce a bootable image that can be written to an SD card for the Orange Pi RV2.
 
-## Notes
-
-* Ensure all build dependencies are installed.
-* You may need to configure `mkosi.conf` for your target distribution and architecture (e.g., `riscv64`).
-* Tested on Orange Pi RV2 with \[insert tested distribution, e.g. Debian, Fedora].
+```bash
+dd if=image of=/dev/you_sd_card bs=1M;sync
+```
 
 ## License
 
