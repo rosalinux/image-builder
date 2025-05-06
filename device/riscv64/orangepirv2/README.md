@@ -29,10 +29,10 @@ cd -
 After building, copy the following files:
 
 ```
-u-boot/u-boot-orangepi/FSBL.bin  
-u-boot/u-boot-orangepi/bootinfo_sd.bin  
-u-boot/u-boot-orangepi/u-boot.itb  
-u-boot/pi-opensbi/build/platform/generic/firmware/fw_dynamic.itb
+cp -fv u-boot/u-boot-orangepi/FSBL.bin .
+cp -fv u-boot/u-boot-orangepi/bootinfo_sd.bin .
+cp -fv u-boot/u-boot-orangepi/u-boot.itb .
+cp -fv u-boot/pi-opensbi/build/platform/generic/firmware/fw_dynamic.itb .
 ```
 
 into the directory where your `mkosi.conf` file is located.
