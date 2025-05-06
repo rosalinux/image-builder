@@ -9,14 +9,9 @@ dracut --force --regenerate-all
 
 # generate boot.scr
 # see mkosi.extra/boot/boot.cmd
-printf "Adjust /boot/bootenv.txt for kernel/initrd ${version}...\n"
-printf "initrd_image=initramfs-${version}.img\n" >> /boot/bootenv.txt
-printf "kernel_image=vmlinuz-${version}\n" >> /boot/bootenv.txt
-
-printf "Current /boot/bootenv.txt...\n"
-printf "#########################\n"
-cat /boot/bootenv.txt
-printf "#########################\n"
+printf "Adjust /boot/env_k1-x.txt for kernel/initrd ${version}...\n"
+sed -i "s/KERNEL_IMAGE/vmlinuz-${version}/g" /boot/env_k1-x.txt
+sed -i "s/INITRD_IMAGE/initramfs-${version}.img/g" /boot/env_k1-x.txt
 
 printf "Generate /boot/boot.scr...\n"
-/usr/bin/mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
+/usr/bin/mkimage -C none -A riscv -T script -d /boot/boot.cmd /boot/boot.scr

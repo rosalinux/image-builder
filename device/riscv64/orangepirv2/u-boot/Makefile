@@ -1,11 +1,11 @@
 CROSS_COMPILE := riscv64-linux-gnu-
 JOBS := $(shell nproc)
-BRANCH := v2022.10-k1-v2.1
+BRANCH := v2022.10-k1-v2.0
 REPO := https://github.com/BPI-SINOVOIP/pi-u-boot.git
 SRC_DIR := u-boot-orangepi
 
 OPENSBI_REPO := https://github.com/BPI-SINOVOIP/pi-opensbi.git
-OPENSBI_BRANCH := v1.3-k1-v2.1
+OPENSBI_BRANCH := v1.3-k1
 OPENSBI_DIR := pi-opensbi
 OPENSBI_BLOB := $(shell pwd)/$(OPENSBI_DIR)/build/platform/generic/firmware/fw_dynamic.bin
 
