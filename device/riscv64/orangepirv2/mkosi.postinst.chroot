@@ -3,7 +3,7 @@
 
 set -Eeuo pipefail
 
-version=$(rpm -q --queryformat '%{version}\n' kernel-6.14-spacemit)
+version=$(rpm -q --queryformat '%{version}\n' kernel-6.6-spacemit)
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
 
