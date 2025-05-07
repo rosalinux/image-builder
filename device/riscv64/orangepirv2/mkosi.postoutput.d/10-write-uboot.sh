@@ -3,7 +3,7 @@
 BOOTINFO_SD="${SRCDIR}/bootinfo_sd.bin"
 FSBL="${SRCDIR}/FSBL.bin"
 FW_OPENSBI="${SRCDIR}/fw_dynamic.itb"
-OPENSBI="${SRCDIR}/u-boot-opensbi.itb"
+OPENSBI="${SRCDIR}/u-boot.itb"
 
 # Check if U-Boot SPL file exists
 if [ ! -f "$BOOTINFO_SD" ]; then
