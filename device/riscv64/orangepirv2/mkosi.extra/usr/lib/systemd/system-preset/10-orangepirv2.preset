@@ -1,8 +1,8 @@
 enable sshd.service
 enable systemd-networkd.service
+enable systemd-timesyncd.service
 enable systemd-growfs-root.service
 
 # We install dnf in some images but it's only going to be used rarely,
 # so let's not have dnf create its cache.
 disable dnf-makecache.*
-enable rkaiq_3A.service
