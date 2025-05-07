@@ -48,7 +48,7 @@ mkosi --force
 This will produce a bootable image that can be written to an SD card for the Orange Pi RV2.
 
 ```bash
-dd if=image of=/dev/you_sd_card bs=1M;sync
+dd if=image of=/dev/your_sd_card bs=1M;sync
 ```
 
 ## License
