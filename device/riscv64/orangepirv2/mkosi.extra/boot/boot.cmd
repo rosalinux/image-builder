@@ -2,9 +2,8 @@
 #
 # Please edit /boot/bootenv.txt to set supported parameters
 #
-setenv rootdev "/dev/mmcblk0p1"
+setenv rootdev "LABEL=rootfs"
 setenv verbosity "7"
-setenv rootfstype "ext4"
 setenv load_addr "0x44500000"
 
 test -n "${distro_bootpart}" || distro_bootpart=1
@@ -14,8 +13,8 @@ if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}bootenv.txt; then
         env import -t ${load_addr} ${filesize}
 fi
 
-part uuid mmc ${devnum}:${distro_bootpart} partuuid
-setenv bootargs "root=${rootdev} rootwait rootfstype=ext4 console=ttyS0,115200 console=tty1 consoleblank=0 loglevel=${verbosity} ubootpart=${partuuid}"
+part uuid nvme ${devnum}:${distro_bootpart} partuuid
+setenv bootargs "root=${rootdev} rootwait console=ttyS0,115200 console=tty1 consoleblank=0 loglevel=${verbosity}"
 
 echo "Boot script loaded from ${devtype} ${devnum}:${distro_bootpart}"
 
