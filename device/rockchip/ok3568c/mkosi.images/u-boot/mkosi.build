@@ -29,7 +29,7 @@ dnf in -y --release 13 basesystem-build curl \
 git clone https://github.com/radxa/u-boot.git --depth 1 -b next-dev-v2024.03
 cd u-boot
 git apply ${SRCDIR}/configuration/*.patch
-BL31="rk3568_bl31_v1.44.elf"
+BL31="rk3568_bl31_v1.45.elf"
 RKDDR="rk3568_ddr_1560MHz_v1.23.bin"
 BOOT_SOC="rk3568"
 ARCH="aarch64"

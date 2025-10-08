@@ -26,7 +26,7 @@ cd u-boot
 make -C ${SRCDIR}/configuration
 cp -fv ${SRCDIR}/configuration/*.dts arch/arm/dts/
 cp -fv ${SRCDIR}/configuration/orangepi-5-rk3588s_defconfig configs/orangepi-5-rk3588s_defconfig
-BL31="rk3588_bl31_v1.44.elf"
+BL31="rk3588_bl31_v1.45.elf"
 RKDDR="rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.15.bin"
 BOOT_SOC="rk3588"
 ARCH="aarch64"
