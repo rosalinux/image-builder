@@ -1,9 +1,18 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-UBOOT_DIR="${SRCDIR}/mkosi"
+BOOT_PKG="ok3568c-bootloader"
+DATA_DIR="/usr/share/${BOOT_PKG}"
 
-pushd ${OUTPUTDIR}
-printf "write bootloader to the image...\n"
-dd if=${UBOOT_DIR}/idbloader.img of=image.raw seek=64 conv=notrunc
-dd if=${UBOOT_DIR}/u-boot.itb of=image.raw seek=16384 conv=notrunc
+ls -la ${DATA_DIR}
+# check file exist
+if [ ! -f "${DATA_DIR}/idbloader.img" ] || [ ! -f "${DATA_DIR}/u-boot.itb" ]; then
+    echo "ERROR: missed bootloader files in ${DATA_DIR}"
+    exit 1
+fi
+
+pushd "${OUTPUTDIR}"
+
+printf "Writing bootloader to the image...\n"
+dd if="${DATA_DIR}/idbloader.img" of=image.raw seek=64 conv=notrunc
+dd if="${DATA_DIR}/u-boot.itb"    of=image.raw seek=16384 conv=notrunc
 popd
