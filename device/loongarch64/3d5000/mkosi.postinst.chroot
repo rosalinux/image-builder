@@ -1,0 +1,28 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+set -x
+
+set -Eeuo pipefail
+
+printf "Copy system-boot stuff...\n"
+mkdir -p /boot/EFI/BOOT/
+cp -fv /usr/lib/systemd/boot/efi/systemd-bootloongarch64.efi /boot/EFI/BOOT/BOOTLOONGARCH64.EFI
+
+BOOT_DIR="/boot"
+
+vmlinuz=$(ls ${BOOT_DIR}/vmlinuz-*loongarch 2>/dev/null | head -n1)
+initrd=$(ls ${BOOT_DIR}/initrd-*loongarch.img 2>/dev/null | head -n1)
+
+if [[ -z "$vmlinuz" || -z "$initrd" ]]; then
+    echo "kernel not found in /boot"
+    exit 1
+fi
+
+filename=$(basename "$vmlinuz")
+
+cat > /boot/loader/entries/rosa.conf <<EOF
+title ROSA Linux Fresh 13
+linux /$(basename "$vmlinuz")
+initrd /$(basename "$initrd")
+options console=ttyS0 console=tty1 root=LABEL=rootfs
+EOF
