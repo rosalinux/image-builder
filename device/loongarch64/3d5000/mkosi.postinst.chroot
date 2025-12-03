@@ -24,5 +24,5 @@ cat > /boot/loader/entries/rosa.conf <<EOF
 title ROSA Linux Fresh 13
 linux /$(basename "$vmlinuz")
 initrd /$(basename "$initrd")
-options console=ttyS0 console=tty1 root=LABEL=rootfs
+options root=LABEL=rootfs console=ttyS0
 EOF
