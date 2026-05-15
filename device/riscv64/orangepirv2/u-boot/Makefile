@@ -1,18 +1,18 @@
 CROSS_COMPILE := riscv64-linux-gnu-
 JOBS := $(shell nproc)
-BRANCH := v2022.10-k1-v2.0
-REPO := https://github.com/BPI-SINOVOIP/pi-u-boot.git
+BRANCH := k1-bl-v2.2.y
+REPO := https://github.com/pyavitz/spacemit-u-boot.git
 SRC_DIR := u-boot-orangepi
 
-OPENSBI_REPO := https://github.com/BPI-SINOVOIP/pi-opensbi.git
-OPENSBI_BRANCH := v1.3-k1
-OPENSBI_DIR := pi-opensbi
+OPENSBI_REPO := https://github.com/pyavitz/spacemit-opensbi.git
+OPENSBI_BRANCH := k1-bl-v2.2.y
+OPENSBI_DIR := spacemit-opensbi
 OPENSBI_BLOB := $(shell pwd)/$(OPENSBI_DIR)/build/platform/generic/firmware/fw_dynamic.bin
 
 default: clone-opensbi build
 
 setup:
-	sudo dnf install -y gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu
+	sudo dnf install -y gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu uboot-tools bison flex openssl-devel
 
 clone:
 	@if [ -d "$(SRC_DIR)" ]; then \

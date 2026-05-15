@@ -1,9 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-
 set -Eeuo pipefail
 
-version=$(rpm -q --queryformat '%{version}\n' kernel-6.6-spacemit)
+version=$(rpm -q --queryformat '%{version}\n' kernel-6.18-spacemit)
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
 
