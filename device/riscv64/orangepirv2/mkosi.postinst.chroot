@@ -3,27 +3,31 @@
 set -Eeuo pipefail
 
 version=$(rpm -q --queryformat '%{version}\n' kernel-6.18-spacemit)
+
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
 
-# generate boot.scr
-# see mkosi.extra/boot/boot.cmd
-# SDCARD boot part
-printf "Adjust /boot/env_k1-x.txt for kernel/initrd ${version}...\n"
-sed -i "s/KERNEL_IMAGE/vmlinuz-${version}/g" /boot/env_k1-x.txt
-sed -i "s/INITRD_IMAGE/initramfs-${version}.img/g" /boot/env_k1-x.txt
+printf "Installing systemd-boot...\n"
+# bootctl not avilable here
+mkdir -p /boot/EFI/systemd/
+cp -r /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/systemd/systemd-bootriscv64.efi
 
-# generate boot.scr
-# see mkosi.extra/boot/boot.cmd
-# NVME boot part
-printf "Adjust /boot/bootenv.txt for kernel/initrd ${version}...\n"
-printf "kernel_image=vmlinuz-${version}\n" >> /boot/bootenv.txt
-printf "initrd_image=initramfs-${version}.img\n" >> /boot/bootenv.txt
+printf "Creating loader entry for kernel ${version}...\n"
+mkdir -p /boot/loader/entries/
+cat > /boot/loader/entries/kernel-${version}.conf << EOF
+title   Linux ${version}
+linux   /vmlinuz-${version}
+initrd  /initramfs-${version}.img
+options root=LABEL=rootfs rootwait console=ttyS0,115200 console=tty1 loglevel=7 audit=0
+EOF
 
-printf "Generate /boot/boot.scr...\n"
-/usr/bin/mkimage -C none -A riscv -T script -d /boot/boot.cmd /boot/boot.scr
+printf "Updating loader.conf...\n"
+cat > /boot/loader/loader.conf << EOF
+default kernel-${version}.conf
+timeout 3
+EOF
 
-printf "Current /boot/bootenv.txt...\n"
+printf "Done. Boot entries:\n"
 printf "#########################\n"
-cat /boot/bootenv.txt
+cat /boot/loader/entries/kernel-${version}.conf
 printf "#########################\n"

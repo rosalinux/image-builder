@@ -1,4 +1,4 @@
 verbosity=7
 overlay_prefix=spacemit
-fdtfile=dtbs/spacemit/k1-x_orangepi-rv2.dtb
+fdtfile=dtbs/spacemit/x1_orangepi-rv2.dtb
 rootdev=LABEL=rootfs
