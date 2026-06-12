@@ -1,7 +1,6 @@
 // Minimal boot config for Orange Pi RV2
 product_name=x1_orangepi-rv2
 overlay_prefix=spacemit
-
 // Serial
 earlycon=sbi
 console=ttyS0,115200
@@ -10,33 +9,30 @@ loglevel=7
 stderr=serial
 stdin=serial,usbkbd
 stdout=serial
-
 // Addresses
 kernel_addr_r=0x10000000
 dtb_addr=0x1F000000
-
 // DTB
 dtb_name=dtbs/spacemit/x1_orangepi-rv2.dtb
-
-// EFI boot from MMC
-efi_boot_mmc=run loadenv_mmc; \
-          load mmc ${devnum}:${distro_bootpart} ${dtb_addr} ${dtb_name}; \
-          load mmc ${devnum}:${distro_bootpart} ${kernel_addr_r} EFI/systemd/systemd-bootriscv64.efi; \
-          bootefi ${kernel_addr_r} ${dtb_addr};
-
+// NVMe defaults
+nvme_devnum=0
+nvme_bootpart=2
 // EFI boot from NVMe
-efi_boot_nvme=run loadenv_nvme; \
+efi_boot_nvme=\
           load nvme ${nvme_devnum}:${nvme_bootpart} ${dtb_addr} ${dtb_name}; \
           load nvme ${nvme_devnum}:${nvme_bootpart} ${kernel_addr_r} EFI/systemd/systemd-bootriscv64.efi; \
           bootefi ${kernel_addr_r} ${dtb_addr};
-
-// Autoboot: пробуем NVMe, fallback на MMC
+// EFI boot from MMC
+efi_boot_mmc=\
+          load mmc ${devnum}:${distro_bootpart} ${dtb_addr} ${dtb_name}; \
+          load mmc ${devnum}:${distro_bootpart} ${kernel_addr_r} EFI/systemd/systemd-bootriscv64.efi; \
+          bootefi ${kernel_addr_r} ${dtb_addr};
+// Autoboot: try NVMe, fallback to MMC
 efi_boot=if nvme scan; then \
              echo "NVMe found, booting from NVMe..."; \
              run efi_boot_nvme; \
          fi; \
          echo "Falling back to MMC..."; \
          run efi_boot_mmc;
-
 bootcmd=run efi_boot
 bootmenu_delay=3
