@@ -16,26 +16,29 @@ This guide explains how to build a bootable firmware image for the Orange Pi RV2
 
 ### 1. Build U-Boot
 
+The build follows the Alpine Linux `aports/testing/u-boot-spacemit` recipe:
+official SpacemiT U-Boot fork (`k1-bl-v2.2.10-release`) with aports patches,
+plus mainline OpenSBI embedded into `u-boot.itb` (no separate `fw_dynamic.itb`).
+
 Navigate to the `u-boot` directory and run:
 
 ```bash
 cd u-boot/
-make
+make setup   # once: install host build deps
+make         # clone, patch, build, install artifacts into ../
 cd -
 ```
 
-### 2. Copy Required Firmware Files
+### 2. Firmware Files
 
-After building, copy the following files:
+`make` (target `install`) copies the required files into this directory:
 
 ```
-cp -fv u-boot/u-boot-orangepi/FSBL.bin .
-cp -fv u-boot/u-boot-orangepi/bootinfo_sd.bin .
-cp -fv u-boot/u-boot-orangepi/u-boot.itb .
-cp -fv u-boot/pi-opensbi/build/platform/generic/firmware/fw_dynamic.itb .
+FSBL.bin               # SPL, written at sector 256
+bootinfo_sd.bin        # boot info, written at sector 0
+u-boot.itb             # U-Boot + embedded OpenSBI, written at sector 2048
+u-boot-env-default.bin # reference default environment
 ```
-
-into the directory where your `mkosi.conf` file is located.
 
 ### 3. Build Image with mkosi
 
