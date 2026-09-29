@@ -2,15 +2,17 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 set -Eeuo pipefail
 
-version=$(rpm -q --queryformat '%{version}\n' kernel-6.18-spacemit)
+version=$(rpm -q --queryformat '%{version}\n' kernel-7.2-generic)
 
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
 
 printf "Installing systemd-boot...\n"
 # bootctl not avilable here
-mkdir -p /boot/EFI/systemd/
+mkdir -p /boot/EFI/systemd/ /boot/EFI/BOOT/
 cp -r /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/systemd/systemd-bootriscv64.efi
+# fallback path probed by the U-Boot built-in k1-x env
+cp -r /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/BOOT/BOOTRISCV64.EFI
 
 printf "Creating loader entry for kernel ${version}...\n"
 mkdir -p /boot/loader/entries/
