@@ -12,8 +12,9 @@ stderr=serial
 kernel_addr_r=0x10000000
 dtb_addr=0x1F000000
 
-// Kernel 7.2 device tree (from arch/riscv/boot/dts/spacemit/)
-dtb_name=dtbs/spacemit/k1-orangepi-rv2.dtb
+// Kernel device tree (arch/riscv/boot/dts/spacemit/); @KREL@ is replaced
+// with the actual kernel release by mkosi.postinst.chroot
+dtb_name=dtb-@KREL@/spacemit/k1-orangepi-rv2.dtb
 efi_name=EFI/systemd/systemd-bootriscv64.efi
 
 // NVMe (whole-disk image cloned to NVMe: 1=uboot 2=bootfs 3=rootfs)

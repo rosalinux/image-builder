@@ -2,10 +2,19 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 set -Eeuo pipefail
 
-version=$(rpm -q --queryformat '%{version}\n' kernel-7.2-generic)
+# kernel release as used in /boot file names (vmlinuz-*, dtb-*)
+version=$(basename "$(ls -d /boot/vmlinuz-* | head -n1)")
+version=${version#vmlinuz-}
+if [ ! -d "/boot/dtb-${version}" ]; then
+    printf "FATAL: /boot/dtb-%s not found\n" "${version}" >&2
+    exit 1
+fi
 
 printf "Generate initrd /boot/initramfs-${version}.img ...\n"
 dracut --force --regenerate-all
+
+printf "Substituting kernel release into U-Boot environment...\n"
+sed -i "s|@KREL@|${version}|g" /boot/env_k1-x.txt
 
 printf "Installing systemd-boot...\n"
 # bootctl not avilable here
