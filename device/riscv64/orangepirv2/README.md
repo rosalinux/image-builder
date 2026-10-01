@@ -93,6 +93,87 @@ fdt print /chosen        # bootargs, stdout-path, initrd info
 fdt print /aliases       # serial0 alias -> uart node
 ```
 
+## Updating the Bootloader in SPI NOR Flash
+
+The board boots its bootloader from the 16 MiB SPI NOR flash (`XM25QU128C`)
+when no SD card is present. Kernel and rootfs are loaded from NVMe.
+
+NOR layout (matches the SPL default `MTDPARTS_DEFAULT`):
+
+| Offset      | Size    | Partition | Contents |
+|-------------|---------|-----------|----------|
+| `0x00000`   | 64K     | bootinfo  | vendor ROM boot info — **do not touch** |
+| `0x10000`   | 64K     | private   | (unused) |
+| `0x20000`   | 256K    | fsbl      | `FSBL.bin` |
+| `0x60000`   | 64K     | env       | erased; U-Boot env comes from bootfs (`env_k1-x.txt`) |
+| `0x70000`   | 192K    | opensbi   | unused (OpenSBI is embedded in `u-boot.itb`) |
+| `0xa0000`   | ~14M    | uboot     | `u-boot.itb` |
+
+### 1. Put the new files on the SD card
+
+Copy the freshly built artifacts to the bootfs partition (partition 2) of
+the SD card:
+
+```bash
+sudo mount /dev/<sd>2 /mnt
+sudo cp FSBL.bin u-boot.itb /mnt/
+sync && sudo umount /mnt
+```
+
+Insert the SD card and press reset: the ROM loads the bootloader from the
+SD card (SD is always tried first), interrupt autoboot to get the `=>` prompt.
+
+### 2. Flash from the U-Boot console
+
+```text
+# load images into RAM
+load mmc 0:2 0x20000000 FSBL.bin
+load mmc 0:2 0x24000000 u-boot.itb
+echo FSBL=${filesize}          # note it: this is the itb size, FSBL was first
+
+# FSBL @ 0x20000 (size 0x30720 = 198240 for the current build)
+sf probe
+sf erase 0x20000 0x40000
+sf write 0x20000000 0x20000 0x30720
+sf read 0x26000000 0x20000 0x30720
+cmp.b 0x20000000 0x26000000 0x30720
+
+# U-Boot + OpenSBI FIT @ 0xa0000 (size 0x2a0925 = 2754853 for the current build)
+sf erase 0xa0000 0x2b0000
+sf write 0x24000000 0xa0000 0x2a0925
+sf read 0x2a000000 0xa0000 0x2a0925
+cmp.b 0x24000000 0x2a000000 0x2a0925
+```
+
+Adjust the sizes to the actual `stat -c %s FSBL.bin u-boot.itb` values of
+your build (use hex in the console). Each `cmp.b` must print
+`Total of N byte(s) were the same`.
+
+### 3. Test
+
+Remove the SD card and press reset. Expected on the serial console
+(115200 8N1):
+
+```text
+bm:3 (SD absent) -> bm:4 (NOR)
+U-Boot SPL 2022.10 ...          # your build
+Boot from fit configuration x1_orangepi-rv2
+OpenSBI v1.9
+U-Boot 2022.10 ...              # then PCIe/NVMe scan, systemd-boot, kernel
+```
+
+### Notes
+
+* If a bad FSBL is flashed, the ROM falls through to USB download mode
+  (`Switch to download device`). Recovery: insert the SD card and press
+  reset — the ROM always tries SD first — then re-flash.
+* The ROM verifies the FSBL signature; images built from the `k1-bl-v2.2.10`
+  tree with the stock `board/spacemit/k1-x/configs/key/` keys are accepted.
+* A known-good prebuilt FSBL (built by Alpine's native riscv64 toolchain)
+  is available in the Alpine `u-boot-spacemit` APK if a locally built FSBL
+  misbehaves in NOR (symptom: `fit_find_config_node: Missing FDT description`
+  although the image verifies fine on flash).
+
 ## License
 
 This project is released under the MIT License.
