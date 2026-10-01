@@ -1,0 +1,16 @@
+--- a/board/spacemit/k1-x/configs/uboot_fdt.its
++++ b/board/spacemit/k1-x/configs/uboot_fdt.its
+@@ -313,11 +313,13 @@
+ 		conf_18 {
+ 			description = "x1_orangepi-rv2";
+ 			loadables = "uboot";
++			firmware = "opensbi";
+ 			fdt = "fdt_18";
+ 		};
+ 		conf_19 {
+ 			description = "x1_orangepi-r2s";
+ 			loadables = "uboot";
++			firmware = "opensbi";
+ 			fdt = "fdt_19";
+ 		};
+ 	};

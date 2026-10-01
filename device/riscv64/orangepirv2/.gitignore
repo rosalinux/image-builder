@@ -1,0 +1,9 @@
+# built firmware artifacts
+/FSBL.bin
+/bootinfo_*.bin
+/u-boot.itb
+/u-boot-env-default.bin
+/fw_dynamic.itb
+/image.raw
+/image
+/image.vmlinuz
