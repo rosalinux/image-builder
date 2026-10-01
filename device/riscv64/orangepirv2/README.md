@@ -51,7 +51,46 @@ mkosi --force
 This will produce a bootable image that can be written to an SD card for the Orange Pi RV2.
 
 ```bash
-dd if=image of=/dev/your_sd_card bs=1M;sync
+dd if=image.raw of=/dev/your_sd_card bs=1M;sync
+```
+
+## Manual Boot from MMC (U-Boot console)
+
+Interrupt autoboot (press any key during the countdown), then load the
+kernel, initramfs and DTB from the bootfs partition (partition 2 on the
+boot device; SD is `mmc 0` on this board) and boot with `booti`:
+
+```
+load mmc 0:2 ${kernel_addr_r} vmlinuz-<version>
+load mmc 0:2 ${fdt_addr_r} dtb-<version>/spacemit/k1-orangepi-rv2.dtb
+load mmc 0:2 ${ramdisk_addr_r} initramfs-<version>.img
+setenv initrd_size ${filesize}
+setenv bootargs "root=PARTUUID=<root-partuuid> rootwait rw console=ttyS0,115200 loglevel=7 earlycon=sbi"
+booti ${kernel_addr_r} ${ramdisk_addr_r}:${initrd_size} ${fdt_addr_r}
+```
+
+Replace `<version>` with the kernel release (e.g. `7.2.8-generic-1rosa14-riscv64`)
+and `<root-partuuid>` with the PARTUUID of the rootfs partition
+(`lsblk -o NAME,PARTUUID` or `blkid` on the host; it is also printed by
+U-Boot's `part list mmc 0`). Booting without an initramfs is possible too
+(pass `-` instead of the ramdisk argument) — useful for bring-up, since
+the console drivers are built into the kernel.
+
+### Debug variants
+
+If the kernel produces no output, use the raw MMIO earlycon (works
+independently of DT/clock setup, UART0 on K1 is at 0xd4017000):
+
+```
+setenv bootargs "root=PARTUUID=<root-partuuid> rootwait rw earlycon=uart8250,mmio32,0xd4017000,115200n8 console=ttyS0,115200n8 loglevel=8 ignore_loglevel keep_bootcon"
+```
+
+Check what U-Boot passed to the kernel:
+
+```
+fdt addr ${fdt_addr_r}
+fdt print /chosen        # bootargs, stdout-path, initrd info
+fdt print /aliases       # serial0 alias -> uart node
 ```
 
 ## License
