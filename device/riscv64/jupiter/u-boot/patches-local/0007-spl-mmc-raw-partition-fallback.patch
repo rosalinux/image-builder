@@ -1,0 +1,29 @@
+diff --git a/common/spl/spl_mmc.c b/common/spl/spl_mmc.c
+index acf2b278..59ea522d 100644
+--- a/common/spl/spl_mmc.c
++++ b/common/spl/spl_mmc.c
+@@ -225,8 +225,22 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
+ 
+ 	for (int p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
+ 		err = part_get_info(mmc_get_blk_desc(mmc), p, &info);
+-		if (err)
+-			continue;
++		if (err) {
++#ifdef K1X
++#else
++		        if (!strcmp(part_name, "opensbi")){
++				info.start = 0x500;
++				strcpy(info.name,"opensbi");
++			}
++			else 
++		        if (!strcmp(part_name, "uboot")){
++				info.start = 0x800;
++				strcpy(info.name,"uboot");
++			}
++			else
++#endif
++				continue;
++		}
+ 		if (!strcmp(part_name, info.name)){
+ 			if (mmc_load_image_raw_sector(spl_image, bootdev, mmc, info.start) == 0)
+ 				return 0;

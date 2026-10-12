@@ -1,0 +1,44 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+set -Eeuo pipefail
+
+# kernel release as used in /boot file names (vmlinuz-*, dtb-*)
+version=$(basename "$(ls -d /boot/vmlinuz-* | head -n1)")
+version=${version#vmlinuz-}
+if [ ! -d "/boot/dtb-${version}" ]; then
+    printf "FATAL: /boot/dtb-%s not found\n" "${version}" >&2
+    exit 1
+fi
+
+printf "Generate initrd /boot/initramfs-${version}.img ...\n"
+dracut --force --regenerate-all
+
+printf "Substituting kernel release into U-Boot environment...\n"
+sed -i "s|@KREL@|${version}|g" /boot/env_k1-x.txt
+
+printf "Installing systemd-boot...\n"
+# bootctl not avilable here
+mkdir -p /boot/EFI/systemd/ /boot/EFI/BOOT/
+cp -r /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/systemd/systemd-bootriscv64.efi
+# fallback path probed by the U-Boot built-in k1-x env
+cp -r /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/BOOT/BOOTRISCV64.EFI
+
+printf "Creating loader entry for kernel ${version}...\n"
+mkdir -p /boot/loader/entries/
+cat > /boot/loader/entries/kernel-${version}.conf << EOF
+title   Linux ${version}
+linux   /vmlinuz-${version}
+initrd  /initramfs-${version}.img
+options root=LABEL=rootfs rootwait console=ttyS0,115200 console=tty1 loglevel=7 audit=0 earlycon=sbi
+EOF
+
+printf "Updating loader.conf...\n"
+cat > /boot/loader/loader.conf << EOF
+default kernel-${version}.conf
+timeout 3
+EOF
+
+printf "Done. Boot entries:\n"
+printf "#########################\n"
+cat /boot/loader/entries/kernel-${version}.conf
+printf "#########################\n"

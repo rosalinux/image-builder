@@ -1,0 +1,14 @@
+# built firmware artifacts
+/FSBL.bin
+/bootinfo_*.bin
+/u-boot.itb
+/u-boot-env-default.bin
+/fw_dynamic.itb
+/image.raw
+/image.raw.zst
+/image
+/image.vmlinuz
+
+# vendored source trees (cloned by u-boot/Makefile)
+/u-boot/u-boot-spacemit/
+/u-boot/opensbi/

@@ -1,0 +1,1 @@
+LABEL=rootfs / ext4 defaults,noatime,commit=120,errors=remount-ro 0 1
