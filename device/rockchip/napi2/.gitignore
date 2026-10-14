@@ -1,0 +1,13 @@
+# built firmware artifacts
+/idbloader.img
+/u-boot.itb
+/image.raw
+/image
+/image.vmlinuz
+# u-boot build trees and blobs
+/u-boot/u-boot-mainline/
+/u-boot/u-boot-radxa/
+/u-boot/rkbin/
+
+# vendor MASKROM recovery loader (not needed for build)
+/rk356x_spl_loader*.bin
