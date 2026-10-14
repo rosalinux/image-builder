@@ -8,3 +8,6 @@
 /image
 /image.raw
 /image.vmlinuz
+
+# reference clone, not built from
+/K3-Ubuntu-Images/
