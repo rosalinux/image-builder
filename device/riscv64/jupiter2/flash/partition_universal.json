@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "format": "gpt",
+  "partitions": [
+    {
+      "name": "env",
+      "comment": "u-boot env (u-boot-env-default.bin), offset/size MUST not change",
+      "hidden": true,
+      "offset": "640K",
+      "size": "64K",
+      "image": "env.bin"
+    },
+    {
+      "name": "bootinfo",
+      "comment": "fsbl address/size info, MUST not change its position",
+      "hidden": true,
+      "offset": "1M",
+      "size": "128K",
+      "image": "bootinfo_spinor.bin"
+    },
+    {
+      "name": "fsbl",
+      "comment": "offset designated by bootinfo",
+      "hidden": true,
+      "offset": "1536K",
+      "size": "512K",
+      "image": "FSBL.bin"
+    },
+    {
+      "name": "opensbi",
+      "hidden": true,
+      "offset": "7M",
+      "size": "1M",
+      "image": "fw_dynamic.itb"
+    },
+    {
+      "name": "uboot",
+      "comment": "EDK2 UEFI payload (edk2.itb)",
+      "hidden": true,
+      "offset": "8M",
+      "size": "4M",
+      "image": "edk2.itb"
+    },
+    {
+      "name": "esp",
+      "comment": "systemd-boot + kernel + initrd + dtb",
+      "offset": "12M",
+      "size": "512M",
+      "image": "esp.vfat"
+    },
+    {
+      "name": "rootfs",
+      "offset": "524M",
+      "size": "-",
+      "image": "rootfs.ext4"
+    }
+  ]
+}
