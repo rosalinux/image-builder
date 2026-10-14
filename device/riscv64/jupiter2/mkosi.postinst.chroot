@@ -1,0 +1,47 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+#
+# Populate the ESP by hand (no mkosi Bootable=/UKI flow, as in napi2):
+#  - dracut initrd
+#  - systemd-boot binary as EFI/BOOT/BOOTRISCV64.EFI (removable media path,
+#    picked up by the EDK2 firmware automatically)
+#  - systemd-boot type#1 loader entry with an explicit devicetree line
+
+set -Eeuo pipefail
+
+version=$(rpm -q --queryformat '%{version}-%{release}\n' kernel-7.2-generic | head -1)
+echo "kernel version: ${version}"
+
+kver="7.2-generic-2rosa14-riscv64"
+[ -f "/boot/vmlinuz-${kver}" ] || kver=$(ls /boot/vmlinuz-* | head -1 | sed 's|/boot/vmlinuz-||')
+echo "kernel dir version: ${kver}"
+
+echo "Generate initrd..."
+if [ ! -f "/boot/initrd-${kver}.img" ] && [ ! -f "/boot/initramfs-${kver}.img" ]; then
+	dracut --no-hostonly --omit "plymouth" "/boot/initrd-${kver}.img" "${kver}"
+fi
+[ -f "/boot/initrd-${kver}.img" ] || [ -f "/boot/initramfs-${kver}.img" ]
+
+echo "Copy dtb..."
+DTB_SRC=$(find /boot/dtb-*/spacemit -name 'k3-pico-itx.dtb' 2>/dev/null | head -1)
+[ -n "${DTB_SRC}" ] || { echo "k3-pico-itx.dtb not found in kernel dtbs"; exit 1; }
+mkdir -p /boot/dtb
+cp -fv "${DTB_SRC}" /boot/dtb/k3-pico-itx.dtb
+
+echo "Install systemd-boot..."
+mkdir -p /boot/EFI/BOOT /boot/loader/entries
+cp -fv /usr/lib/systemd/boot/efi/systemd-bootriscv64.efi /boot/EFI/BOOT/BOOTRISCV64.EFI
+
+echo "Write loader entry..."
+cat > /boot/loader/entries/rosa.conf <<EOF
+title   Rosa14 (SpacemiT K3 Pico-ITX)
+linux   /vmlinuz-${kver}
+initrd  /initrd-${kver}.img
+devicetree /dtb/k3-pico-itx.dtb
+options root=LABEL=rootfs rw rootwait console=ttyS0,115200 earlycon loglevel=7
+EOF
+
+echo "timeout 3
+default rosa.conf" > /boot/loader/loader.conf
+
+ls -la /boot/ /boot/loader/entries/
