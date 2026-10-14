@@ -12,3 +12,9 @@
 # vendored source trees (cloned by u-boot/Makefile)
 /u-boot/u-boot-spacemit/
 /u-boot/opensbi/
+
+# temporary aports checkout (patches vendored into u-boot/patches-aports)
+/u-boot/aports/
+
+# factory images (1.8G, kept locally for factory flashing)
+/factory/

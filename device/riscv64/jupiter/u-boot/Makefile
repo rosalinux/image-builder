@@ -26,7 +26,9 @@ OPENSBI_DIR  := opensbi
 OPENSBI_BLOB := $(CURDIR)/$(OPENSBI_DIR)/build/platform/generic/firmware/fw_dynamic.bin
 
 # ----- Patches -----
-APORTS_UBOOT   := $(CURDIR)/../aports/testing/u-boot-spacemit
+# Vendored from aports/testing/u-boot-spacemit (Alpine Linux); no aports
+# checkout is needed to build.
+APORTS_UBOOT   := $(CURDIR)/patches-aports
 LOCAL_PATCHES  := $(sort $(wildcard patches-local/*.patch))
 # Order follows the source= array of the APKBUILD
 APORTS_PATCHES := \

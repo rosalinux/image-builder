@@ -25,5 +25,7 @@ pushd "${OUTPUTDIR}"
 printf "Writing bootloader to the image...\n"
 dd if=${BOOTINFO_SD} of=image.raw seek=0 conv=notrunc
 dd if=${FSBL} of=image.raw seek=256 conv=notrunc
+# backup FSBL copy at LBA 1024 (bootinfo_sd.json: spl1_offset=0x80000)
+dd if=${FSBL} of=image.raw seek=1024 conv=notrunc
 dd if=${OPENSBI} of=image.raw bs=512 seek=2048 conv=notrunc
 popd

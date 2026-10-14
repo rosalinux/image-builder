@@ -34,11 +34,64 @@ cd -
 `make` (target `install`) copies the required files into this directory:
 
 ```
-FSBL.bin               # SPL, written at sector 256
+FSBL.bin               # SPL, written at sector 256 (+ backup copy at sector 1024,
+                       #   per bootinfo_sd.json: spl0_offset=0x20000, spl1_offset=0x80000)
 bootinfo_sd.bin        # boot info, written at sector 0
 u-boot.itb             # U-Boot + embedded OpenSBI, written at sector 2048
 u-boot-env-default.bin # reference default environment
 ```
+
+## Boot Architecture (verified on hardware)
+
+Two working configurations:
+
+* **NVMe-only** (production): no SD inserted → ROM falls back to the SPI
+  NOR bootloader (vendor build) → it brings up PCIe, imports
+  `env_k1-x.txt` from the NVMe bootfs and boots kernel+rootfs from NVMe
+  (`efi_boot_nvme` → systemd-boot). Flash the whole `image.raw` to the
+  NVMe disk. Note: our own u-boot build cannot train the PCIe link (the
+  slot's power/PHY description is missing from its DTS — future work;
+  port the `regulator-pcie-vcc3v3`/pcie node from the kernel DT if you
+  want the NOR bootloader replaced with ours).
+* **SD** (development): ROM always tries SD first → our u-boot (with the
+  50 MHz SD fix) → `boot_mmc` (direct `booti`, `root=LABEL=rootfs`).
+  Keep the env free of `nvme` commands on this path: in our build
+  `nvme scan` always fails *and leaves the SD controller in a broken
+  state*, breaking the subsequent fallback boot.
+
+If both SD and NVMe are present, `root=LABEL=rootfs` is ambiguous (both
+images carry the label) — dracut may mount either rootfs. Pull the SD
+when booting from NVMe, or relabel one of them.
+
+## Known-good SD layout (verified on hardware)
+
+The board identifies itself as `m1-x_milkv-jupiter` (EEPROM), so the FSBL
+picks FIT configuration `conf_7` / `fdt_7` — keep the `m1-x` DTS in sync
+when changing board files. In Linux the SD card is `mmcblk1` (the empty
+eMMC slot on `d4281000.mmc` takes `mmcblk0`), hence `root=LABEL=rootfs`
+in the generated boot environment, not `/dev/mmcblk0pN`.
+
+Two U-Boot specifics discovered during bring-up:
+
+* **SD bus speed**: U-Boot's manual delay-code tuning at SDR104 is
+  unreliable on this board (random `fs_devread read error`, `Invalid GPT`,
+  spontaneous resets during large reads). Both jupiter DTS files carry
+  `max-frequency = <50000000>` in `&sdhci0`, which fixes it; the kernel
+  uses its own DTB and still runs the card at SDR104.
+* **GPT vs bigger cards**: after dd-ing the 1.78 GiB image onto a larger
+  card the backup GPT header is not at the last sector, and U-Boot's
+  partition parser refuses the primary GPT. The first boot into the OS
+  runs growpart/systemd-growfs which extends p3 and rewrites both GPT
+  copies — from then on boot is clean. For a cold-install fix, run
+  `sgdisk -e` (or `echo 'w' | gdisk`) on the card before first boot.
+
+Firmware updates from the U-Boot console (no host card reader needed):
+`loady 0x10000000` + `sb u-boot.itb` over serial, then
+`mmc dev 0; mmc write 0x10000000 0x800 <sectors>`; or expose the card to
+the host as USB mass storage with `ums 0 mmc 0` (both enabled in this
+build). The in-U-Boot `fastboot` gadget only flashes to NVMe/mmc 2 by
+default (`CONFIG_FASTBOOT_SUPPORT_*_BLOCK_DEV_*`); this build points it
+at mmc 0.
 
 ### 3. Build Image with mkosi
 
@@ -95,8 +148,9 @@ fdt print /aliases       # serial0 alias -> uart node
 
 ## Updating the Bootloader in SPI NOR Flash
 
-The board boots its bootloader from the 16 MiB SPI NOR flash (`sf probe` shows the model)
-when no SD card is present. Kernel and rootfs are loaded from NVMe.
+The board boots its bootloader from the 8 MiB SPI NOR flash (gd25q64,
+`sf probe` shows the model) when no SD card is present. Kernel and
+rootfs are loaded from NVMe.
 
 NOR layout (matches the SPL default `MTDPARTS_DEFAULT`):
 
@@ -164,6 +218,11 @@ U-Boot 2022.10 ...              # then PCIe/NVMe scan, systemd-boot, kernel
 
 ### Notes
 
+* **Do not** flash NOR with the upstream `partition_2M.json` script:
+  its `uboot` partition is only 0x160000 bytes, smaller than our
+  `u-boot.itb` (~0x2a4000) — the flash fails or truncates, leaving NOR
+  unbootable (recoverable: SD is always tried first). Use the sf
+  write/erase commands above instead.
 * If a bad FSBL is flashed, the ROM falls through to USB download mode
   (`Switch to download device`). Recovery: insert the SD card and press
   reset — the ROM always tries SD first — then re-flash.
