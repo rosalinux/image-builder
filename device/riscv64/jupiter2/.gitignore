@@ -1,0 +1,10 @@
+# built firmware artifacts (u-boot/Makefile install target)
+/firmware/
+# build trees
+/u-boot/u-boot-spacemit/
+/u-boot/opensbi/
+/u-boot/edk2-spacemit/
+# image outputs
+/image
+/image.raw
+/image.vmlinuz
